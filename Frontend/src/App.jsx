@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Test from './components/donors/Test';
 import Landing from './components/main/Landing';
 import Header from './components/main/Header';
+import Auth from './components/main/Auth/Auth';
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
           <Landing />
         </div>
         } />
+        <Route path="/auth" element={<Auth />} />
         <Route path="/test" element={<Test />} />
       </Routes>
     </Router>

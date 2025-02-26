@@ -113,7 +113,7 @@ function App() {
                     className="px-3 py-2 border rounded-md"
                 />
                 <button
-                    className="ml-3 px-5 py-2 bg-green-500 text-white rounded-lg"
+                    className="ml-3 px-5 py-2 bg-indigo-500 text-white rounded-lg"
                     onClick={handleDonate}
                 >
                     Donate

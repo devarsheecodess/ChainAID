@@ -63,7 +63,7 @@ const Header = () => {
 
                     {/* Login Button */}
                     <div className="hidden md:block">
-                        <button className="bg-white cursor-pointer hover:bg-gray-300 text-indigo-900 px-8 py-2 rounded-full font-medium shadow hover:bg-opacity-90 transition-colors duration-200">
+                        <button onClick={() => window.location.href = '/auth'} className="bg-white cursor-pointer hover:bg-gray-300 text-indigo-900 px-8 py-2 rounded-full font-medium shadow hover:bg-opacity-90 transition-colors duration-200">
                             Login
                         </button>
                     </div>
