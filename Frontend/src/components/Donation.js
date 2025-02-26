@@ -3,15 +3,6 @@ import rawABI from "../contracts/DonationABI.json";
 const DonationABI = rawABI.abi; // Extract ABI if it's nested inside an object
 import { CONTRACT_ADDRESS } from "../contracts/constants";
 
-export async function getContract(signer) {
-  if (!Array.isArray(DonationABI)) {
-    console.error("Invalid ABI format:", DonationABI);
-    throw new Error("Contract ABI must be an array.");
-  }
-
-  return new ethers.Contract(CONTRACT_ADDRESS, DonationABI, signer);
-}
-
 export async function donate(amount) {
   if (!window.ethereum) {
     alert("MetaMask not found!");
@@ -19,18 +10,23 @@ export async function donate(amount) {
   }
 
   try {
+    // Connect to MetaMask
     const provider = new ethers.BrowserProvider(window.ethereum);
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+
+    // Get the user's signer (private key stays secure inside MetaMask)
     const signer = await provider.getSigner();
-    const contract = await getContract(signer);
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, DonationABI, signer);
 
+    // Send donation transaction
     const tx = await contract.donate({
-      value: ethers.parseEther(amount),
+      value: ethers.parseEther(amount), // Convert amount to Wei
     });
+    await tx.wait(); // Wait for transaction to be confirmed
 
-    await tx.wait();
     alert("Donation successful!");
   } catch (error) {
     console.error("Donation failed:", error);
-    alert("Donation failed. Check console for details.");
+    alert("Transaction failed!");
   }
 }
