@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcryptjs");
+const multer = require("multer"); // For file uploads
 
 dotenv.config();
 
@@ -15,6 +16,10 @@ app.use(bodyParser.json()); // To parse JSON bodies
 // Models
 const Donor = require("./Models/Donor");
 const Organization = require("./Models/Organization");
+
+// Increase payload size limit
+app.use(bodyParser.json({ limit: "10mb" })); // Increase limit to 10MB
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 
 // MongoDB Connection
 mongoose
@@ -43,6 +48,9 @@ const hashPassword = async (password) => {
 app.post("/donor", async (req, res) => {
   const data = req.body;
   try {
+    if (await Donor.findOne({ email: data.email })) {
+      return res.json({ status: "exists", error: "Donor already exists!" });
+    }
     data.password = await hashPassword(data.password);
     const donor = new Donor(data);
     await donor.save();

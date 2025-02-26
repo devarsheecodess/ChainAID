@@ -1,7 +1,52 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+    const navigate = useNavigate();
     const [userType, setUserType] = useState('donor');
+    const [donorForm, setDonorForm] = useState({ email: '', password: '' });
+    const [organizationForm, setOrganizationForm] = useState({ email: '', password: '' });
+
+    const handleDonorChange = (e) => {
+        setDonorForm({ ...donorForm, [e.target.name]: e.target.value });
+    }
+
+    const handleOrganizationChange = (e) => {
+        setOrganizationForm({ ...organizationForm, [e.target.name]: e.target.value });
+    }
+
+    const handleDonorLogin = async (e) => {
+        e.preventDefault()
+        try {
+            const response = await axios.post('http://localhost:3000/donor/login', donorForm)
+            if (response.data.status === 'loggedIn') {
+                alert('Logged in successfully!')
+                navigate('/donor/dashboard')
+            }
+            else {
+                alert('Invalid username/password!')
+            }
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
+    const handleOrgLogin = async (e) => {
+        e.preventDefault()
+        try {
+            const response = await axios.post('http://localhost:3000/organization/login', organizationForm)
+            if (response.data.status === 'loggedIn') {
+                alert('Logged in successfully!')
+                navigate('/organization/dashboard')
+            }
+            else {
+                alert('Invalid email/password!')
+            }
+        } catch (err) {
+            console.error(err)
+        }
+    }
 
     return (
         <div className="bg-white rounded-lg shadow-lg p-8 animate-fadeIn">
@@ -23,13 +68,16 @@ const Login = () => {
 
             {/* Donor Login Form */}
             {userType === 'donor' && (
-                <form>
+                <form onSubmit={handleDonorLogin}>
                     <div className="mb-5">
                         <label htmlFor="donor-username" className="block mb-2 font-medium text-gray-700">
                             Email ID
                         </label>
                         <input
                             type="text"
+                            name="email"
+                            onChange={handleDonorChange}
+                            value={donorForm.email}
                             id="donor-username"
                             className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             required
@@ -42,21 +90,13 @@ const Login = () => {
                         </label>
                         <input
                             type="password"
+                            name="password"
+                            onChange={handleDonorChange}
+                            value={donorForm.password}
                             id="donor-password"
                             className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             required
                         />
-                    </div>
-
-                    <div className="flex items-center mb-5">
-                        <input
-                            type="checkbox"
-                            id="donor-remember"
-                            className="w-5 h-5 text-indigo-900 border-gray-300 rounded focus:ring-indigo-500"
-                        />
-                        <label htmlFor="donor-remember" className="ml-2 text-gray-700">
-                            Remember me
-                        </label>
                     </div>
 
                     <button
@@ -65,30 +105,21 @@ const Login = () => {
                     >
                         Login as Donor
                     </button>
-
-                    <div className="flex items-center my-6">
-                        <div className="flex-grow border-t border-gray-300"></div>
-                        <span className="mx-3 text-gray-500">OR</span>
-                        <div className="flex-grow border-t border-gray-300"></div>
-                    </div>
-
-                    <div className="text-center">
-                        <p className="text-gray-600">
-                            Forgot your password? <a href="#" className="text-indigo-900 font-medium hover:underline">Reset it here</a>
-                        </p>
-                    </div>
                 </form>
             )}
 
             {/* Organization Login Form */}
             {userType === 'organization' && (
-                <form>
+                <form onSubmit={handleOrgLogin}>
                     <div className="mb-5">
                         <label htmlFor="org-username" className="block mb-2 font-medium text-gray-700">
                             Email ID
                         </label>
                         <input
                             type="text"
+                            name='email'
+                            onChange={handleOrganizationChange}
+                            value={organizationForm.email}
                             id="org-username"
                             className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             required
@@ -101,21 +132,13 @@ const Login = () => {
                         </label>
                         <input
                             type="password"
+                            name='password'
+                            onChange={handleOrganizationChange}
+                            value={organizationForm.password}
                             id="org-password"
                             className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             required
                         />
-                    </div>
-
-                    <div className="flex items-center mb-5">
-                        <input
-                            type="checkbox"
-                            id="org-remember"
-                            className="w-5 h-5 text-indigo-900 border-gray-300 rounded focus:ring-indigo-500"
-                        />
-                        <label htmlFor="org-remember" className="ml-2 text-gray-700">
-                            Remember me
-                        </label>
                     </div>
 
                     <button
@@ -124,18 +147,6 @@ const Login = () => {
                     >
                         Login as Organization
                     </button>
-
-                    <div className="flex items-center my-6">
-                        <div className="flex-grow border-t border-gray-300"></div>
-                        <span className="mx-3 text-gray-500">OR</span>
-                        <div className="flex-grow border-t border-gray-300"></div>
-                    </div>
-
-                    <div className="text-center">
-                        <p className="text-gray-600">
-                            Forgot your password? <a href="#" className="text-indigo-900 font-medium hover:underline">Reset it here</a>
-                        </p>
-                    </div>
                 </form>
             )}
         </div>

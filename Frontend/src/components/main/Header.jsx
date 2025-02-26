@@ -115,7 +115,7 @@ const Header = () => {
                             <Link
                                 smooth={true}
                                 duration={500}
-                                onClick={() => setIsMenuOpen(false)}
+                                onClick={() => { setIsMenuOpen(false); window.location.href = '/auth' }}
                                 className="flex justify-center items-center gap-3 text-white font-medium px-2 py-3 cursor-pointer bg-indigo-700 p-5 rounded-lg"
                                 style={{ backgroundColor: 'rgba(49,44,133,0.8)' }}
                             >

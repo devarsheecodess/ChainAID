@@ -1,9 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Test from './components/donors/Test';
 import Landing from './components/main/Landing';
 import Header from './components/main/Header';
 import Auth from './components/main/Auth/Auth';
+import DonorDashboard from './components/donors/Dashboard';
+import OrganizationDashboard from './components/organization/Dashboard';
 
 const App = () => {
   return (
@@ -15,7 +16,10 @@ const App = () => {
         </div>
         } />
         <Route path="/auth" element={<Auth />} />
-        <Route path="/test" element={<Test />} />
+        {/* Donor Routes*/}
+        <Route path="/donor/dashboard" element={<DonorDashboard />} />
+        {/* Organization Routes*/}
+        <Route path="/organization/dashboard" element={<OrganizationDashboard />} />
       </Routes>
     </Router>
   );

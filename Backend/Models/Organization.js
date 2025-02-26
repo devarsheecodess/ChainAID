@@ -6,7 +6,7 @@ const organizationSchema = new Schema({
   orgID: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  telephone: { type: Number, required: true },
+  telephone: { type: String, required: true },
   type: { type: String, required: true },
   address: { type: String, required: true },
   certificate: { type: String, required: true },
