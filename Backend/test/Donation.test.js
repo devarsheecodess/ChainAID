@@ -7,20 +7,23 @@ describe("Donation Smart Contract", function () {
   let owner, addr1, addr2;
 
   beforeEach(async function () {
-    // Get signers
     [owner, addr1, addr2] = await ethers.getSigners();
 
-    // Deploy the contract
     const Donation = await ethers.getContractFactory("Donation");
     donationContract = await Donation.deploy();
-    await donationContract.waitForDeployment(); // Ensure deployment completes
+    await donationContract.waitForDeployment();
   });
 
   it("Should emit an event when a donation is made", async function () {
+    const donationAmount = ethers.parseEther("1");
+
     await expect(
-      donationContract.connect(addr1).donate({ value: ethers.parseEther("1") })
+      addr1.sendTransaction({
+        to: donationContract.target, // ✅ FIXED: Use `target` for contract address
+        value: donationAmount,
+      })
     )
       .to.emit(donationContract, "DonationReceived")
-      .withArgs(addr1.address, ethers.parseEther("1"), anyValue);
+      .withArgs(addr1.address, donationAmount, anyValue);
   });
 });
