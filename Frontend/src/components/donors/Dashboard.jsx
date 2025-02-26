@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Search, User, X } from 'lucide-react';
 
 const Dashboard = () => {
-    // Sample data for organizations
     const [organizations, setOrganizations] = useState([
         {
             id: 1,
