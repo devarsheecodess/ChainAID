@@ -19,7 +19,7 @@ const Footer = () => {
                                 <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                                 <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                             </svg>
-                            <span className="text-2xl font-bold text-white">ChainAid</span>
+                            <span className="text-3xl font-bold text-white tracking-tight flex">Chain<p className='text-[#55dcd9]'>Aid</p></span>
                         </div>
                         <div className="flex space-x-6">
                             <a href="#" className="text-gray-400 hover:text-white">

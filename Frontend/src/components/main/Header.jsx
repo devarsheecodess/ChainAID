@@ -36,7 +36,7 @@ const Header = () => {
                             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                         </svg>
-                        <h1 className="text-3xl font-bold text-white tracking-tight">ChainAid</h1>
+                        <h1 className="text-3xl font-bold text-white tracking-tight flex">Chain<p className='text-[#55dcd9]'>Aid</p></h1>
                     </div>
 
                     {/* Desktop Navigation */}
@@ -48,7 +48,7 @@ const Header = () => {
                             duration={500}
                             className="text-white text-lg font-medium cursor-pointer"
                         >
-                            <p className='text-white'>Home</p>
+                            <p className='text-white hover:text-gray-300'>Home</p>
                         </Link>
                         <Link
                             to="about"
@@ -56,14 +56,14 @@ const Header = () => {
                             duration={500}
                             className="text-white text-lg font-medium cursor-pointer"
                         >
-                            <p className='text-white'>About</p>
+                            <p className='text-white hover:text-gray-300'>About</p>
                         </Link>
                     </nav>
 
 
                     {/* Login Button */}
                     <div className="hidden md:block">
-                        <button className="bg-white text-indigo-900 px-8 py-2 rounded-full font-medium shadow hover:bg-opacity-90 transition-colors duration-200">
+                        <button className="bg-white cursor-pointer hover:bg-gray-300 text-indigo-900 px-8 py-2 rounded-full font-medium shadow hover:bg-opacity-90 transition-colors duration-200">
                             Login
                         </button>
                     </div>

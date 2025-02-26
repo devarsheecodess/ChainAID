@@ -24,7 +24,7 @@ const Landing = () => {
                                 ensuring your support reaches those who need it most.
                             </p>
                             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                                <button className="px-8 py-3 bg-indigo-600 text-white font-medium rounded-full shadow-lg hover:bg-indigo-700 transition-colors duration-200">
+                                <button className="px-8 py-3 cursor-pointer bg-indigo-600 text-white font-medium rounded-full shadow-lg hover:bg-indigo-700 transition-colors duration-200">
                                     Start Donating
                                 </button>
                             </div>
@@ -74,10 +74,10 @@ const Landing = () => {
                         Join our community of donors and help create a positive impact through the power of blockchain technology.
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                        <button className="px-8 py-3 bg-white text-indigo-700 font-medium rounded-full shadow-lg hover:bg-gray-100 transition-colors duration-200">
+                        <button className="cursor-pointer px-8 py-3 bg-white text-indigo-700 font-medium rounded-full shadow-lg hover:bg-gray-100 transition-colors duration-200">
                             Start Donating
                         </button>
-                        <button className="px-8 py-3 border border-white text-white font-medium rounded-full hover:bg-indigo-700 transition-colors duration-200">
+                        <button className="cursor-pointer px-8 py-3 border border-white text-white font-medium rounded-full hover:bg-indigo-700 transition-colors duration-200">
                             Learn More
                         </button>
                     </div>
