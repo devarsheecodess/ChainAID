@@ -15,6 +15,7 @@ const OrgInfo = () => {
         website: '',
     });
     const [base64PhotoURL, setBase64PhotoURL] = useState('');
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -73,7 +74,7 @@ const OrgInfo = () => {
         e.preventDefault();
         try {
             console.log(formData);
-            const response = await axios.post('http://localhost:3000/organization/info', formData);
+            const response = await axios.post(`${BACKEND_URL}/organization/info`, formData);
             if (response.status === 200) {
                 alert('Organization information submitted successfully!');
                 window.location.href = '/auth';

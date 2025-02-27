@@ -17,6 +17,7 @@ const Profile = () => {
         new: false,
         confirm: false
     });
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -35,7 +36,7 @@ const Profile = () => {
 
     const fetchUserData = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/donor/data', {
+            const response = await axios.get(`${BACKEND_URL}/donor/data`, {
                 params: { id: localStorage.getItem('donorId') }
             });
             console.log(response.data);
@@ -77,7 +78,7 @@ const Profile = () => {
 
             console.log(updatedData);
 
-            const response = await axios.put('http://localhost:3000/update', updatedData);
+            const response = await axios.put(`${BACKEND_URL}/update`, updatedData);
 
             if (response.data.success) {
                 alert("Profile updated successfully!");

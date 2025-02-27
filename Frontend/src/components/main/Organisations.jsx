@@ -8,10 +8,11 @@ import 'swiper/css/pagination';
 
 const Organisations = () => {
     const [organizations, setOrganizations] = useState([]);
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const fetchOrganizations = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/organization/info');
+            const response = await axios.get(`${BACKEND_URL}/organization/info`);
             setOrganizations(response.data);
         } catch (err) {
             console.log(err);

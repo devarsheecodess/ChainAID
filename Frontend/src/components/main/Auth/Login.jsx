@@ -7,6 +7,7 @@ const Login = () => {
     const [userType, setUserType] = useState('donor');
     const [donorForm, setDonorForm] = useState({ email: '', password: '' });
     const [organizationForm, setOrganizationForm] = useState({ email: '', password: '' });
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const handleDonorChange = (e) => {
         setDonorForm({ ...donorForm, [e.target.name]: e.target.value });
@@ -19,7 +20,7 @@ const Login = () => {
     const handleDonorLogin = async (e) => {
         e.preventDefault()
         try {
-            const response = await axios.post('http://localhost:3000/donor/login', donorForm)
+            const response = await axios.post(`${BACKEND_URL}/donor/login`, donorForm)
             if (response.data.status === 'loggedIn') {
                 alert('Logged in successfully!')
                 localStorage.setItem('donorId', response.data.id)
@@ -37,7 +38,7 @@ const Login = () => {
     const handleOrgLogin = async (e) => {
         e.preventDefault()
         try {
-            const response = await axios.post('http://localhost:3000/organization/login', organizationForm)
+            const response = await axios.post(`${BACKEND_URL}/organization/login`, organizationForm)
             if (response.data.status === 'loggedIn') {
                 alert('Logged in successfully!')
                 localStorage.setItem('organizationId', response.data.id)

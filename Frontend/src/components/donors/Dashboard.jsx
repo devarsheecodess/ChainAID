@@ -9,6 +9,7 @@ const Dashboard = () => {
     const [showDonateModal, setShowDonateModal] = useState(false);
     const [greeting, setGreeting] = useState('');
     const [donorName, setDonorName] = useState(localStorage.getItem('donorName').split(' ')[0]);
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     // Filter organizations based on search term
     const filteredOrganizations = organizations.filter(org =>
@@ -23,7 +24,7 @@ const Dashboard = () => {
 
     const fetchOrgInfo = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/organization/info');
+            const response = await axios.get(`${BACKEND_URL}/organization/info`);
             setOrganizations(response.data);
             console.log(response.data);
         } catch (err) {

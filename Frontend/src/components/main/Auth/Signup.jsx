@@ -9,6 +9,7 @@ const Signup = () => {
     const [base64PhotoURL, setBase64PhotoURL] = useState('');
     const [confirmDonorPassword, setConfirmDonorPassword] = useState('');
     const [confirmOrgPassword, setConfirmOrgPassword] = useState('');
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const [donorForm, setDonorForm] = useState({
         id: uuidv4(),
@@ -114,7 +115,7 @@ const Signup = () => {
             return;
         }
         try {
-            const response = await axios.post('http://localhost:3000/donor', donorForm);
+            const response = await axios.post(`${BACKEND_URL}/donor`, donorForm);
             if (response.data.status === 'exists') {
                 alert('User already exists');
             } else if (response.data.status === 'success') {
@@ -137,7 +138,7 @@ const Signup = () => {
         }
         try {
             console.log(organizationForm);
-            const response = await axios.post('http://localhost:3000/organization', organizationForm);
+            const response = await axios.post(`${BACKEND_URL}/organization`, organizationForm);
             if (response.data.status === 'success') {
                 alert('Organization registered successfully');
                 localStorage.setItem('orgID', organizationForm.id);

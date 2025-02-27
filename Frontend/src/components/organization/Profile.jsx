@@ -39,7 +39,6 @@ const Profile = () => {
         e.preventDefault();
         console.log('Form submitted:', formData);
         setIsEditing(false);
-        // Handle form submission logic here
     };
 
     const organizationTypes = [
