@@ -11,7 +11,7 @@ dotenv.config();
 
 app.use(
   cors({
-    origin: "https://chain-aid.vercel.app/", // Allow Vite frontend
+    origin: "http://localhost:5173/", // Allow Vite frontend
   })
 );
 app.use(bodyParser.json()); // To parse JSON bodies
