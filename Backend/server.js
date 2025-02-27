@@ -9,11 +9,25 @@ const bcrypt = require("bcryptjs");
 
 dotenv.config();
 
+const FRONTEND_URLS = [
+  "http://localhost:5173", // Vite Dev Server
+  "https://chain-aid.vercel.app", // Deployed Frontend
+];
+
+// Allow multiple origins dynamically
 app.use(
   cors({
-    origin: "http://localhost:5173/", // Allow Vite frontend
+    origin: function (origin, callback) {
+      if (!origin || FRONTEND_URLS.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // Allow cookies if needed
   })
 );
+
 app.use(bodyParser.json()); // To parse JSON bodies
 
 // Models
