@@ -5,17 +5,22 @@ import { Autoplay, EffectCoverflow } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 import 'swiper/css/pagination';
+import Loader from '../Loader';
 
 const Organisations = () => {
     const [organizations, setOrganizations] = useState([]);
+    const [loading, setLoading] = useState(false);
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const fetchOrganizations = async () => {
         try {
+            setLoading(true);
             const response = await axios.get(`${BACKEND_URL}/organization/info`);
             setOrganizations(response.data);
         } catch (err) {
             console.log(err);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -33,6 +38,8 @@ const Organisations = () => {
                     </p>
 
                     <div className="relative py-6 md:py-10">
+                        {loading && <Loader />}
+
                         {organizations.length > 0 && (
                             <Swiper
                                 effect={'coverflow'}

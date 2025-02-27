@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, User, X, LogOut } from 'lucide-react';
 import axios from 'axios';
+import Loader from '../Loader';
 
 const Dashboard = () => {
     const [organizations, setOrganizations] = useState([]);
@@ -8,6 +9,7 @@ const Dashboard = () => {
     const [selectedOrg, setSelectedOrg] = useState(null);
     const [showDonateModal, setShowDonateModal] = useState(false);
     const [greeting, setGreeting] = useState('');
+    const [loading, setLoading] = useState(false);
     const [donorName, setDonorName] = useState(localStorage.getItem('donorName').split(' ')[0]);
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -24,19 +26,22 @@ const Dashboard = () => {
 
     const fetchOrgInfo = async () => {
         try {
+            setLoading(true);
             const response = await axios.get(`${BACKEND_URL}/organization/info`);
             setOrganizations(response.data);
             console.log(response.data);
         } catch (err) {
             console.error(err);
+        } finally {
+            setLoading(false);
         }
     }
 
     const getGreeting = () => {
         const time = new Date().getHours();
-        if (time < 12) {
+        if (time < 12 && time >= 3) {
             setGreeting('Good Morning');
-        } else if (time < 16) {
+        } else if (time < 16 && time >= 12) {
             setGreeting('Good Afternoon');
         } else {
             setGreeting('Good Evening');
@@ -113,7 +118,9 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="relative mb-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {loading && <Loader />}
+
                         {filteredOrganizations.map(org => (
                             <div key={org.id} className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
                                 <div className="h-40 bg-gradient-to-r from-indigo-500 to-teal-400 flex items-center justify-center overflow-hidden">
@@ -133,10 +140,9 @@ const Dashboard = () => {
                                     </button>
                                 </div>
                             </div>
-
                         ))}
 
-                        {filteredOrganizations.length === 0 && (
+                        {!loading && filteredOrganizations.length === 0 && (
                             <div className="text-center text-gray-600 col-span-3">
                                 No organizations found.
                             </div>
