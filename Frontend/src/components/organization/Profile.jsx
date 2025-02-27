@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 
 const Profile = () => {
     const [formData, setFormData] = useState({
-        name: 'John Doe',
-        email: 'johndoe@example.com',
-        phone: '+1 234 567 8901',
-        address: '123 Blockchain Street, Crypto City, CC 12345',
+        name: 'Global Water Initiative',
+        email: 'contact@globalwater.org',
+        telephone: '+1 234 567 8901',
+        type: 'Non-Profit',
+        address: '456 Sustainability Road, Eco City, EC 98765',
+        walletAddress: '0x8F21aeB3952d45B5Cb1368b5a914F98B9B60Df26',
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
     });
+
     const [isEditing, setIsEditing] = useState(false);
     const [passwordView, setPasswordView] = useState({
         current: false,
@@ -33,79 +35,48 @@ const Profile = () => {
         });
     };
 
-    const fetchUserData = async () => {
-        try {
-            const response = await axios.get('http://localhost:3000/donor/data', {
-                params: { id: localStorage.getItem('donorId') }
-            });
-            console.log(response.data);
-            setFormData(response.data);
-        } catch (err) {
-            console.error("Error fetching donor data:", err);
-        }
-    };
-
-    useEffect(() => {
-        fetchUserData()
-    }, [])
-
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        try {
-            const donorId = localStorage.getItem('donorId');
-            if (!donorId) {
-                alert("User not authenticated!");
-                return;
-            }
-
-            // Send only schema-defined fields
-            const updatedData = {
-                id: donorId,
-                username: formData.username,
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                address: formData.address,
-                password: formData.newPassword || formData.password
-            };
-
-            // Include password fields only if changing the password
-            if (formData.newPassword) {
-                updatedData.currentPassword = formData.currentPassword;
-                updatedData.newPassword = formData.newPassword;
-            }
-
-            console.log(updatedData);
-
-            const response = await axios.put('http://localhost:3000/update', updatedData);
-
-            if (response.data.success) {
-                alert("Profile updated successfully!");
-                setIsEditing(false);
-            } else {
-                alert("Failed to update profile");
-            }
-        } catch (err) {
-            console.error("Error updating profile:", err);
-            alert("An error occurred while updating the profile");
-        }
+        console.log('Form submitted:', formData);
+        setIsEditing(false);
+        // Handle form submission logic here
     };
+
+    const organizationTypes = [
+        'Non-Profit',
+        'Charity',
+        'Foundation',
+        'NGO',
+        'Educational',
+        'Healthcare',
+        'Environmental',
+        'Community',
+        'Religious',
+        'Other'
+    ];
 
     return (
         <div className="min-h-screen bg-indigo-900 text-white py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-12">
                     <h1 className="text-5xl font-bold mb-6">
-                        Your <span className="text-teal-400">Profile</span>
+                        Organization <span className="text-teal-400">Profile</span>
                     </h1>
                     <p className="text-xl">
-                        Update your personal information and settings
+                        Manage your organization's information and settings
                     </p>
                 </div>
 
                 <div className="bg-indigo-800/50 rounded-lg p-8 backdrop-blur-sm shadow-xl">
-                    <div className="flex justify-between items-center mb-8">
-                        <h2 className="text-2xl font-bold">Personal Information</h2>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+                        <div className="flex items-center mb-4 sm:mb-0">
+                            <div className="bg-teal-400/20 p-3 rounded-full mr-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                            <h2 className="text-2xl font-bold">Organization Details</h2>
+                        </div>
                         <button
                             onClick={() => setIsEditing(!isEditing)}
                             className="px-4 py-2 rounded-full text-sm font-medium bg-teal-400 text-indigo-900 hover:bg-teal-300 transition duration-300"
@@ -115,9 +86,27 @@ const Profile = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Full Name */}
+                        {/* Organization Logo/Image Section */}
+                        <div className="flex flex-col sm:flex-row items-center mb-8">
+                            <div className="w-24 h-24 bg-indigo-700 rounded-full flex items-center justify-center mb-4 sm:mb-0 sm:mr-6 overflow-hidden">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                </svg>
+                            </div>
+                            {isEditing && (
+                                <div>
+                                    <label className="inline-block px-4 py-2 bg-indigo-700 text-white rounded-lg cursor-pointer hover:bg-indigo-600 transition">
+                                        <span>Change Logo</span>
+                                        <input type="file" className="hidden" accept="image/*" />
+                                    </label>
+                                    <p className="text-sm text-gray-300 mt-2">Recommended: Square image, at least 200x200px</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Organization Name */}
                         <div>
-                            <label className="block text-lg mb-2">Full Name</label>
+                            <label className="block text-lg mb-2">Organization Name</label>
                             <input
                                 type="text"
                                 name="name"
@@ -128,30 +117,49 @@ const Profile = () => {
                             />
                         </div>
 
-                        {/* Email */}
+                        {/* Type of Organization */}
                         <div>
-                            <label className="block text-lg mb-2">Email Address</label>
-                            <input
-                                type="email"
-                                name="email"
-                                value={formData.email}
+                            <label className="block text-lg mb-2">Type of Organization</label>
+                            <select
+                                name="type"
+                                value={formData.type}
                                 onChange={handleChange}
                                 disabled={!isEditing}
                                 className={`w-full p-3 rounded-lg ${isEditing ? 'bg-indigo-700/50 border border-indigo-500' : 'bg-indigo-800/70 border border-indigo-700'} focus:outline-none focus:ring-2 focus:ring-teal-400`}
-                            />
+                            >
+                                {organizationTypes.map((type) => (
+                                    <option key={type} value={type}>{type}</option>
+                                ))}
+                            </select>
                         </div>
 
-                        {/* Phone */}
-                        <div>
-                            <label className="block text-lg mb-2">Phone Number</label>
-                            <input
-                                type="tel"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                                className={`w-full p-3 rounded-lg ${isEditing ? 'bg-indigo-700/50 border border-indigo-500' : 'bg-indigo-800/70 border border-indigo-700'} focus:outline-none focus:ring-2 focus:ring-teal-400`}
-                            />
+                        {/* Contact Information Section */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Email */}
+                            <div>
+                                <label className="block text-lg mb-2">Email Address</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                    className={`w-full p-3 rounded-lg ${isEditing ? 'bg-indigo-700/50 border border-indigo-500' : 'bg-indigo-800/70 border border-indigo-700'} focus:outline-none focus:ring-2 focus:ring-teal-400`}
+                                />
+                            </div>
+
+                            {/* Telephone */}
+                            <div>
+                                <label className="block text-lg mb-2">Telephone</label>
+                                <input
+                                    type="tel"
+                                    name="telephone"
+                                    value={formData.telephone}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                    className={`w-full p-3 rounded-lg ${isEditing ? 'bg-indigo-700/50 border border-indigo-500' : 'bg-indigo-800/70 border border-indigo-700'} focus:outline-none focus:ring-2 focus:ring-teal-400`}
+                                />
+                            </div>
                         </div>
 
                         {/* Address */}
@@ -165,6 +173,34 @@ const Profile = () => {
                                 rows="3"
                                 className={`w-full p-3 rounded-lg ${isEditing ? 'bg-indigo-700/50 border border-indigo-500' : 'bg-indigo-800/70 border border-indigo-700'} focus:outline-none focus:ring-2 focus:ring-teal-400`}
                             ></textarea>
+                        </div>
+
+                        {/* Wallet Address */}
+                        <div>
+                            <label className="block text-lg mb-2">Organization Wallet Address</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    name="walletAddress"
+                                    value={formData.walletAddress}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                    className={`w-full p-3 rounded-lg font-mono text-sm ${isEditing ? 'bg-indigo-700/50 border border-indigo-500' : 'bg-indigo-800/70 border border-indigo-700'} focus:outline-none focus:ring-2 focus:ring-teal-400`}
+                                />
+                                {!isEditing && (
+                                    <button
+                                        type="button"
+                                        className="absolute outline-0 inset-y-0 right-0 pr-3 flex items-center text-teal-400 hover:text-teal-300"
+                                        onClick={() => { navigator.clipboard.writeText(formData.walletAddress); alert('Wallet address copied to clipboard!'); }}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z" />
+                                            <path d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z" />
+                                        </svg>
+                                    </button>
+                                )}
+                            </div>
+                            <p className="text-xs text-gray-300 mt-1">This is the wallet address that will receive donations</p>
                         </div>
 
                         {/* Password Section */}
@@ -286,33 +322,6 @@ const Profile = () => {
                             </div>
                         )}
                     </form>
-
-                    {/* Wallet Connection Section */}
-                    <div className="mt-12 pt-6 border-t border-indigo-600">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-2xl font-bold">Connected Wallet</h2>
-                            <div className="px-3 py-1 rounded-full bg-teal-400/20 text-teal-400 text-sm">
-                                Active
-                            </div>
-                        </div>
-
-                        <div className="bg-indigo-800/70 border border-indigo-700 rounded-lg p-4 flex justify-between items-center">
-                            <div className="flex items-center">
-                                <div className="bg-indigo-600 p-3 rounded-full mr-4">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-300">ETH Wallet</p>
-                                    <p className="font-mono">0x71C7...F92E</p>
-                                </div>
-                            </div>
-                            <button className="text-red-400 hover:text-red-300 px-3 py-1 rounded-full bg-red-400/10 hover:bg-red-400/20 transition">
-                                Disconnect
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

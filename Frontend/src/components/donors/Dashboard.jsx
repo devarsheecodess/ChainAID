@@ -1,66 +1,59 @@
-import React, { useState } from 'react';
-import { Search, User, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, User, X, LogOut } from 'lucide-react';
+import axios from 'axios';
 
 const Dashboard = () => {
-    const [organizations, setOrganizations] = useState([
-        {
-            id: 1,
-            name: "Water for All",
-            category: "Environment",
-            raised: "12.45 ETH",
-            vision: "Providing clean water access to communities in need around the world through sustainable solutions and local partnerships."
-        },
-        {
-            id: 2,
-            name: "Education First",
-            category: "Education",
-            raised: "8.32 ETH",
-            vision: "Creating educational opportunities for underprivileged children through technology, resources, and teacher training programs."
-        },
-        {
-            id: 3,
-            name: "Medical Relief",
-            category: "Healthcare",
-            raised: "15.67 ETH",
-            vision: "Delivering essential medical supplies and healthcare services to disaster-affected areas and underserved communities."
-        },
-        {
-            id: 4,
-            name: "Food Security",
-            category: "Humanitarian",
-            raised: "10.21 ETH",
-            vision: "Fighting hunger through sustainable agriculture, food distribution networks, and community-based nutrition programs."
-        },
-        {
-            id: 5,
-            name: "Wildlife Protection",
-            category: "Environment",
-            raised: "7.83 ETH",
-            vision: "Conserving endangered species and their habitats through protection initiatives, research, and community engagement."
-        },
-        {
-            id: 6,
-            name: "Digital Literacy",
-            category: "Education",
-            raised: "5.96 ETH",
-            vision: "Bridging the digital divide by providing technology access and skills training to underserved populations."
-        }
-    ]);
-
+    const [organizations, setOrganizations] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedOrg, setSelectedOrg] = useState(null);
     const [showDonateModal, setShowDonateModal] = useState(false);
+    const [greeting, setGreeting] = useState('');
+    const [donorName, setDonorName] = useState(localStorage.getItem('donorName').split(' ')[0]);
 
     // Filter organizations based on search term
     const filteredOrganizations = organizations.filter(org =>
         org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        org.category.toLowerCase().includes(searchTerm.toLowerCase())
+        org.type.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const handleDonateClick = (org) => {
         setSelectedOrg(org);
         setShowDonateModal(true);
     };
+
+    const fetchOrgInfo = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/organization/info');
+            setOrganizations(response.data);
+            console.log(response.data);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    const getGreeting = () => {
+        const time = new Date().getHours();
+        if (time < 12) {
+            setGreeting('Good Morning');
+        } else if (time < 16) {
+            setGreeting('Good Afternoon');
+        } else {
+            setGreeting('Good Evening');
+        }
+    }
+
+    useEffect(() => {
+        fetchOrgInfo();
+        getGreeting();
+    }, []);
+
+    const handleLogout = () => {
+        const cf = window.confirm('Are you sure you want to logout?');
+        if (cf) {
+            window.location.href = '/';
+            localStorage.clear();
+        }
+    }
 
     return (
         <div className="bg-gray-100 min-h-screen">
@@ -73,18 +66,21 @@ const Dashboard = () => {
                             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
                         </svg>
                     </div>
-                    <h1 className="text-xl font-bold">ChainAid</h1>
+                    <h1 className="text-xl font-bold text-white tracking-tight flex">Chain<p className='text-[#55dcd9]'>Aid</p></h1>
                 </div>
                 <div className="flex items-center">
                     <button onClick={() => window.location.href = '/donor/profile'} className="bg-white text-indigo-900 rounded-full px-6 py-2 flex items-center">
                         <User size={18} className="mr-2" />
                         Profile
                     </button>
+                    <button onClick={handleLogout} className="text-white outline-0 ml-5 flex items-center">
+                        <LogOut size={20} className="mr-2 font-bold" />
+                    </button>
                 </div>
             </header>
 
             <main className="container mx-auto py-8 px-4">
-                <h1 className="text-3xl font-bold mb-8">Donor Dashboard</h1>
+                <h1 className="text-3xl font-bold mb-8">{greeting}, {donorName}!</h1>
 
                 {/* Donation Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -119,18 +115,15 @@ const Dashboard = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredOrganizations.map(org => (
                             <div key={org.id} className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                                <div className="h-40 bg-gradient-to-r from-indigo-500 to-teal-400 flex items-center justify-center">
-                                    {/* Placeholder for organization image/logo */}
-                                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                                        <span className="text-2xl font-bold text-indigo-500">{org.name.charAt(0)}</span>
-                                    </div>
+                                <div className="h-40 bg-gradient-to-r from-indigo-500 to-teal-400 flex items-center justify-center overflow-hidden">
+                                    <img src={org.image} alt={org.name} className="h-full w-full object-cover" />
                                 </div>
                                 <div className="p-4">
                                     <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mb-2">
-                                        {org.category}
+                                        {org.type}
                                     </span>
                                     <h3 className="font-bold text-xl mb-2">{org.name}</h3>
-                                    <p className="text-gray-600 mb-4">Raised so far: {org.raised}</p>
+                                    <p className="text-gray-600 mb-4">Donation Target: {org.donationAmount} {org.currency}</p>
                                     <button
                                         className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
                                         onClick={() => handleDonateClick(org)}
@@ -139,6 +132,7 @@ const Dashboard = () => {
                                     </button>
                                 </div>
                             </div>
+
                         ))}
 
                         {filteredOrganizations.length === 0 && (
@@ -170,10 +164,10 @@ const Dashboard = () => {
                         <div className="p-6">
                             <div className="mb-6">
                                 <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mb-2">
-                                    {selectedOrg.category}
+                                    {selectedOrg.type}
                                 </span>
                                 <h3 className="text-2xl font-bold text-gray-800 mb-2">{selectedOrg.name}</h3>
-                                <p className="text-gray-600 mb-2">Raised so far: {selectedOrg.raised}</p>
+                                <p className="text-gray-600 mb-2">Donation target: {selectedOrg.donationAmount}</p>
                                 <h4 className="font-semibold text-gray-800 mt-4 mb-2">Our Vision</h4>
                                 <p className="text-gray-600">{selectedOrg.vision}</p>
                             </div>

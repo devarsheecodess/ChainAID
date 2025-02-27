@@ -7,6 +7,8 @@ import DonorDashboard from './components/donors/Dashboard';
 import DonorProfile from './components/donors/Profile';
 import OrganizationDashboard from './components/organization/Dashboard';
 import ErrorPage from './components/ErrorPage';
+import OrgInfo from './components/main/Auth/OrgInfo';
+import OrgProfile from './components/organization/Profile';
 
 const App = () => {
   return (
@@ -24,6 +26,8 @@ const App = () => {
         <Route path="/donor/profile" element={<DonorProfile />} />
         {/* Organization Routes*/}
         <Route path="/organization/dashboard" element={<OrganizationDashboard />} />
+        <Route path='/organization/info' element={<OrgInfo />} />
+        <Route path='/organization/profile' element={<OrgProfile />} />
       </Routes>
     </Router>
   );

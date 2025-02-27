@@ -1,11 +1,28 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import About from './About';
 import Organisations from './Organisations';
 import Footer from './Footer';
 import HeroImg from '../../assets/hero-img.png';
 import Auth from '../main/Auth/Auth';
+import axios from 'axios';
 
 const Landing = () => {
+    const [organizations, setOrganizations] = useState([]);
+    const [numOrgs, setNumOrgs] = useState(localStorage.getItem('noOfOrgs'));
+
+    const fetchOrganizations = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/organization/info');
+            setOrganizations(response.data);
+            setNumOrgs(response.data.length);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    useEffect(() => {
+        fetchOrganizations();
+    }, []);
 
     return (
         <div className="min-h-screen pt-10">
@@ -53,7 +70,7 @@ const Landing = () => {
                             </div>
                             <div className="absolute -bottom-6 left-4 bg-white p-4 rounded-lg shadow-lg">
                                 <p className="text-sm text-gray-500">Organizations</p>
-                                <p className="text-xl font-bold text-teal-500">48</p>
+                                <p className="text-xl font-bold text-center text-teal-500">{numOrgs}</p>
                             </div>
                         </div>
 

@@ -22,6 +22,8 @@ const Login = () => {
             const response = await axios.post('http://localhost:3000/donor/login', donorForm)
             if (response.data.status === 'loggedIn') {
                 alert('Logged in successfully!')
+                localStorage.setItem('donorId', response.data.id)
+                localStorage.setItem('donorName', response.data.name)
                 navigate('/donor/dashboard')
             }
             else {
@@ -38,6 +40,9 @@ const Login = () => {
             const response = await axios.post('http://localhost:3000/organization/login', organizationForm)
             if (response.data.status === 'loggedIn') {
                 alert('Logged in successfully!')
+                localStorage.setItem('organizationId', response.data.id)
+                localStorage.setItem('organizationName', response.data.name)
+                localStorage.setItem('organizationImage', response.data.image)
                 navigate('/organization/dashboard')
             }
             else {

@@ -16,6 +16,7 @@ app.use(bodyParser.json()); // To parse JSON bodies
 // Models
 const Donor = require("./Models/Donor");
 const Organization = require("./Models/Organization");
+const OrgInfo = require("./Models/OrgInfo");
 
 // Increase payload size limit
 app.use(bodyParser.json({ limit: "10mb" })); // Increase limit to 10MB
@@ -81,7 +82,7 @@ app.post("/donor/login", async (req, res) => {
       return res.json({ status: "error", error: "Donor doesnt exist!" });
     }
     if (await bcrypt.compare(password, donor.password)) {
-      return res.json({ status: "loggedIn", data: donor });
+      return res.json({ status: "loggedIn", id: donor.id, name: donor.name });
     }
     res.json({ status: "error", error: "Invalid username/password" });
   } catch (err) {
@@ -99,12 +100,119 @@ app.post("/organization/login", async (req, res) => {
         error: "Organization doesn't exist!",
       });
     }
+    const image = await OrgInfo.findOne({ id: organization.id });
     if (await bcrypt.compare(password, organization.password)) {
-      return res.json({ status: "loggedIn", data: organization });
+      return res.json({
+        status: "loggedIn",
+        id: organization.id,
+        name: organization.name,
+        image: image.image,
+      });
     }
     res.json({ status: "error", error: "Invalid email/password" });
   } catch (err) {
     res.status(500).send(err);
+  }
+});
+
+// Post organization info
+app.post("/organization/info", async (req, res) => {
+  const data = req.body;
+  try {
+    const orgInfo = new OrgInfo(data);
+    await orgInfo.save();
+    res.send({ status: "success" });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Get all organizations Info
+app.get("/organization/info", async (req, res) => {
+  try {
+    const orgs = await OrgInfo.find();
+    res.send(orgs);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Fetch donor details to edit
+app.get("/donor/data", async (req, res) => {
+  const { id } = req.query; // Get id from query params
+
+  if (!id) {
+    return res.status(400).json({ error: "Donor ID is required" });
+  }
+
+  try {
+    // Find donor by the custom 'id' field
+    const donor = await Donor.findOne({ id });
+
+    if (!donor) {
+      return res.status(404).json({ error: "Donor not found" });
+    }
+
+    res.json(donor);
+  } catch (err) {
+    console.error("Error fetching donor:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Edit donor details
+app.put("/update", async (req, res) => {
+  try {
+    const {
+      id,
+      username,
+      name,
+      email,
+      phone,
+      address,
+      currentPassword,
+      newPassword,
+    } = req.body;
+
+    // Find the donor by ID
+    let donor = await Donor.findOne({ id });
+    if (!donor) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Donor not found" });
+    }
+
+    // Update only schema-defined fields
+    donor.username = username || donor.username;
+    donor.name = name || donor.name;
+    donor.email = email || donor.email;
+    donor.phone = phone || donor.phone;
+    donor.address = address || donor.address;
+
+    // Handle password update if requested
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Current password is required to set a new password",
+        });
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, donor.password);
+      if (!isMatch) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Incorrect current password" });
+      }
+
+      donor.password = await bcrypt.hash(newPassword, 10);
+    }
+
+    await donor.save();
+    res.json({ success: true, message: "Profile updated successfully" });
+  } catch (error) {
+    console.error("Update Error:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
 

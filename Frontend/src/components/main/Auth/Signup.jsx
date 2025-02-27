@@ -140,7 +140,8 @@ const Signup = () => {
             const response = await axios.post('http://localhost:3000/organization', organizationForm);
             if (response.data.status === 'success') {
                 alert('Organization registered successfully');
-                window.location.reload();
+                localStorage.setItem('orgID', organizationForm.id);
+                window.location.href = '/organization/info';
             } else {
                 console.log('Failed to register organization');
             }
