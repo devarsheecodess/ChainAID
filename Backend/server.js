@@ -6,13 +6,12 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcryptjs");
-const multer = require("multer"); // For file uploads
 
 dotenv.config();
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL, // Allow Vite frontend
+    origin: "https://chain-aid.vercel.app/", // Allow Vite frontend
   })
 );
 app.use(bodyParser.json()); // To parse JSON bodies
