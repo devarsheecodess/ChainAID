@@ -10,7 +10,11 @@ const multer = require("multer"); // For file uploads
 
 dotenv.config();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Allow Vite frontend
+  })
+);
 app.use(bodyParser.json()); // To parse JSON bodies
 
 // Models
