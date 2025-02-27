@@ -12,7 +12,7 @@ dotenv.config();
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allow Vite frontend
+    origin: process.env.FRONTEND_URL, // Allow Vite frontend
   })
 );
 app.use(bodyParser.json()); // To parse JSON bodies
