@@ -78,7 +78,7 @@ const Profile = () => {
 
             console.log(updatedData);
 
-            const response = await axios.put(`${BACKEND_URL}/update`, updatedData);
+            const response = await axios.put(`${BACKEND_URL}/donor/update`, updatedData);
 
             if (response.data.success) {
                 alert("Profile updated successfully!");

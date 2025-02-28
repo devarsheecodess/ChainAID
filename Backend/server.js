@@ -178,7 +178,7 @@ app.get("/donor/data", async (req, res) => {
 });
 
 // Edit donor details
-app.put("/update", async (req, res) => {
+app.put("/donor/update", async (req, res) => {
   try {
     const {
       id,
@@ -230,6 +230,98 @@ app.put("/update", async (req, res) => {
   } catch (error) {
     console.error("Update Error:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+// Fetch organization details to edit
+app.get("/organization/data", async (req, res) => {
+  const { id } = req.query; // Get id from query params
+
+  if (!id) {
+    return res.status(400).json({ error: "Organization ID is required" });
+  }
+
+  try {
+    // Find donor by the custom 'id' field
+    const org = await Organization.findOne({ id });
+    const org2 = await OrgInfo.findOne({ id });
+
+    if (!org) {
+      return res.status(404).json({ error: "Organization not found" });
+    }
+
+    if (!org2) {
+      return res.status(404).json({ error: "Organization Info not found" });
+    }
+
+    res.json({
+      name: org.name,
+      email: org.email,
+      telephone: org.telephone,
+      type: org.type,
+      address: org.address,
+      walletAddress: org2.walletAddress,
+      vision: org2.vision,
+      donationAim: org2.donationAim,
+      donationAmount: org2.donationAmount,
+      currency: org2.currency,
+      website: org2.website,
+      image: org2.image,
+      password: org.password,
+    });
+  } catch (err) {
+    console.error("Error fetching organization:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.put("/organization/update", async (req, res) => {
+  const { id } = req.query; // Extract id from query parameters
+  const data = req.body; // Extract the rest of the data from the request body
+
+  try {
+    const orgData = {
+      name: data.name,
+      email: data.email,
+      telephone: data.telephone,
+      type: data.type,
+      address: data.address,
+    };
+
+    if (data.newPassword) {
+      orgData.password = await hashPassword(data.newPassword);
+    }
+
+    const orgInfoData = {
+      name: data.name,
+      vision: data.vision,
+      donationAim: data.donationAim,
+      image: data.image,
+      donationAmount: data.donationAmount,
+      currency: data.currency,
+      walletAddress: data.walletAddress,
+      website: data.website,
+      updatedAt: new Date(),
+    };
+
+    const org = await Organization.findOneAndUpdate({ id }, orgData, {
+      new: true,
+    });
+    const orgInfo = await OrgInfo.findOneAndUpdate({ id }, orgInfoData, {
+      new: true,
+    });
+
+    if (!org) {
+      return res.status(404).json({ error: "Organization not found" });
+    }
+
+    if (!orgInfo) {
+      return res.status(404).json({ error: "Organization Info not found" });
+    }
+
+    res.json({ success: true, message: "Organization updated successfully" });
+  } catch (err) {
+    console.log(err);
   }
 });
 
