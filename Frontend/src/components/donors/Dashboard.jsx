@@ -130,7 +130,20 @@ const Dashboard = () => {
                                     <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mb-2">
                                         {org.type}
                                     </span>
-                                    <h3 className="font-bold text-xl mb-2">{org.name}</h3>
+                                    <div className='flex gap-3'>
+                                        <h3 className="font-bold text-xl mb-2">{org.name}</h3>
+                                        {
+                                            org.verified ? (
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-2">
+                                                    Verified
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 mb-2">
+                                                    Not Verified
+                                                </span>
+                                            )
+                                        }
+                                    </div>
                                     <p className="text-gray-600 mb-4">Donation Target: {org.donationAmount} {org.currency}</p>
                                     <button
                                         className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"

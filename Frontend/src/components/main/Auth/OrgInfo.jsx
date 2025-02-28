@@ -9,10 +9,11 @@ const OrgInfo = () => {
         vision: '',
         donationAim: '',
         image: null,
-        donationAmount: '',
+        donationAmount: 0,
         currency: '',
         walletAddress: '',
         website: '',
+        verified: false,
     });
     const [base64PhotoURL, setBase64PhotoURL] = useState('');
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;

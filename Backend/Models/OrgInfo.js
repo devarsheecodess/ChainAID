@@ -50,6 +50,10 @@ const OrganizationSchema = new mongoose.Schema(
       required: false,
       trim: true,
     },
+    verified: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

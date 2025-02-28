@@ -111,12 +111,15 @@ app.post("/organization/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     const organization = await Organization.findOne({ email }).lean();
+    const orgInfo = await OrgInfo.findOne({ id: organization.id });
+
     if (!organization) {
       return res.json({
         status: "error",
         error: "Organization doesn't exist!",
       });
     }
+
     const image = await OrgInfo.findOne({ id: organization.id });
     if (await bcrypt.compare(password, organization.password)) {
       return res.json({
@@ -124,6 +127,7 @@ app.post("/organization/login", async (req, res) => {
         id: organization.id,
         name: organization.name,
         image: image.image,
+        verified: orgInfo.verified,
       });
     }
     res.json({ status: "error", error: "Invalid email/password" });
@@ -148,7 +152,11 @@ app.post("/organization/info", async (req, res) => {
 app.get("/organization/info", async (req, res) => {
   try {
     const orgs = await OrgInfo.find();
-    res.send(orgs);
+    const blacklistedOrgs = await Organization.find({ blacklsted: true });
+    const filtered = orgs.filter(
+      (org) => !blacklistedOrgs.some((blacklisted) => blacklisted.id === org.id)
+    );
+    res.json(filtered);
   } catch (err) {
     res.status(500).send(err);
   }
@@ -320,6 +328,169 @@ app.put("/organization/update", async (req, res) => {
     }
 
     res.json({ success: true, message: "Organization updated successfully" });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// Get organization info (admin panel)
+app.get("/admin/orgs", async (req, res) => {
+  try {
+    const orgs = await Organization.find();
+    const orgInfo = await OrgInfo.find();
+
+    if (!orgs || !orgInfo) {
+      return res.status(404).json({ message: "No organizations found" });
+    }
+
+    const response = orgs.map((org) => {
+      const info = orgInfo.find(
+        (info) => info.id.toString() === org.id.toString()
+      );
+      return {
+        id: org.id,
+        name: org.name,
+        description: info ? info.vision : "No description available",
+        address: info ? info.walletAddress : "No address available",
+        status: org.blacklsted ? "blacklisted" : "active",
+      };
+    });
+
+    res.json(response);
+  } catch (err) {
+    console.error("Error fetching organizations:", err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// Fetch organization info for verification
+app.get("/admin/verify/info", async (req, res) => {
+  try {
+    const orgs = await Organization.find();
+    const orgInfo = await OrgInfo.find();
+
+    if (!orgs || !orgInfo) {
+      return res.status(404).json({ message: "No organizations found" });
+    }
+
+    // Filter and merge data based on common identifier (`id`) and `verified === false`
+    const response = orgs
+      .map((org) => {
+        const info = orgInfo.find(
+          (info) => info.id.toString() === org.id.toString()
+        );
+
+        // Only include organizations that are not verified
+        if (info && info.verified === false && !org.blacklsted) {
+          return {
+            _id: org.id,
+            id: org.orgID,
+            name: org.name,
+            certificate: org.certificate,
+            description: info.vision,
+            certificateDate: info.createdAt,
+          };
+        }
+        return null; // Exclude verified entries
+      })
+      .filter((entry) => entry !== null); // Remove null values
+
+    res.json(response);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// App Stats
+app.get("/admin/stats", async (req, res) => {
+  try {
+    const totalOrganizations = await Organization.countDocuments();
+    const activeOrganizations = await OrgInfo.countDocuments({
+      verified: true,
+    });
+
+    // Keeping 'blacklsted' as intended
+    const blacklistedOrganizations = await Organization.countDocuments({
+      blacklsted: true,
+    });
+
+    const totalDonations = 0; // Placeholder, update when needed
+    const totalTransactions = 0; // Placeholder for now
+
+    const unverified = await OrgInfo.countDocuments({ verified: false });
+    const blacklisted = await Organization.countDocuments({ blacklsted: true });
+
+    // Ensure pendingVerifications count is non-negative
+    const pendingVerifications = Math.max(0, unverified - blacklisted);
+
+    res.json({
+      totalOrganizations,
+      activeOrganizations,
+      blacklistedOrganizations,
+      pendingVerifications,
+      totalDonations,
+      totalTransactions,
+    });
+  } catch (err) {
+    console.error("Error fetching admin stats:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Fetch pending verifications
+app.get("/admin/verify/pending", async (req, res) => {
+  try {
+    const pendingOrgs = await OrgInfo.find({ verified: false });
+    res.json({
+      id: pendingOrgs.id,
+      name: pendingOrgs.name,
+      submittedOn: pendingOrgs.createdAt,
+    });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+// Verify organization
+app.put("/admin/verify", async (req, res) => {
+  const { id } = req.body;
+  try {
+    const org = await OrgInfo.findOneAndUpdate(
+      { id },
+      { verified: true },
+      { new: true }
+    );
+    res.json({ status: "success", message: "Organization verified" });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// Blacklist organisation
+app.put("/admin/blacklist", async (req, res) => {
+  const { id } = req.body;
+  try {
+    const org = await Organization.findOneAndUpdate(
+      { id },
+      { blacklsted: true },
+      { new: true }
+    );
+    res.json({ status: "success", message: "Organization blacklisted" });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// Whitelist organisation
+app.put("/admin/whitelist", async (req, res) => {
+  const { id } = req.body;
+  try {
+    const org = await Organization.findOneAndUpdate(
+      { id },
+      { blacklsted: false },
+      { new: true }
+    );
+    res.json({ status: "success", message: "Organization whitelisted" });
   } catch (err) {
     console.log(err);
   }

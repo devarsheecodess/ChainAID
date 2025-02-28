@@ -12,6 +12,7 @@ const organizationSchema = new Schema({
   certificate: { type: String, required: true },
   password: { type: String, required: true },
   joinedOn: { type: Date, default: Date.now },
+  blacklsted: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model("Organization", organizationSchema);

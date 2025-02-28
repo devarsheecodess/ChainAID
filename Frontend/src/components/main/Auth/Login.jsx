@@ -44,6 +44,7 @@ const Login = () => {
                 localStorage.setItem('organizationId', response.data.id)
                 localStorage.setItem('organizationName', response.data.name)
                 localStorage.setItem('organizationImage', response.data.image)
+                localStorage.setItem('verified', response.data.verified)
                 navigate('/organization/dashboard')
             }
             else {

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Edit, User, Download, ArrowUpRight, ChevronDown, LogOut } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Search, Edit, User, Download, ArrowUpRight, ChevronDown, LogOut, CheckCircle, XCircle } from 'lucide-react';
 
 const OrganizationDashboard = () => {
     // Sample data for donations and donors
@@ -10,6 +10,7 @@ const OrganizationDashboard = () => {
     });
     const [orgName, setOrgName] = useState(localStorage.getItem('organizationName'));
     const [orgImg, setOrgImg] = useState(localStorage.getItem('organizationImage'));
+    const [verified, setVerified] = useState(localStorage.getItem('verified'));
 
     const [donors, setDonors] = useState([
         { id: 1, name: "Alex Johnson", address: "0x71C...9E3B", amount: "2.5 ETH", date: "2025-02-25", recurring: true },
@@ -75,9 +76,23 @@ const OrganizationDashboard = () => {
                         </div>
                         <div className="flex-grow">
                             <h2 className="text-2xl font-bold text-gray-800">{orgName}</h2>
-                            <span className="inline-block mt-5 bg-green-100 text-green-800 rounded-full px-3 py-1 text-sm font-semibold">
-                                Verified Organization
+                            <span
+                                className={`inline-flex items-center gap-1 mt-5 rounded-full px-3 py-1 text-sm font-semibold ${verified === true ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                    }`}
+                            >
+                                {verified === true ? (
+                                    <>
+                                        <CheckCircle size={16} />
+                                        Verified
+                                    </>
+                                ) : (
+                                    <>
+                                        <XCircle size={16} />
+                                        Not Verified
+                                    </>
+                                )}
                             </span>
+
                         </div>
                     </div>
                 </div>
