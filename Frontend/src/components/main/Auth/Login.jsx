@@ -112,6 +112,17 @@ const Login = () => {
                     >
                         Login as Donor
                     </button>
+
+                    <p className="text-center mt-6 mb-2">
+                        <span className="text-gray-600 mr-2">Admin?</span>
+                        <a
+                            href="/login/admin"
+                            className="text-indigo-900 hover:text-indigo-700 font-medium transition-colors duration-200 relative inline-block group"
+                        >
+                            Login Here
+                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 group-hover:w-full transition-all duration-300"></span>
+                        </a>
+                    </p>
                 </form>
             )}
 

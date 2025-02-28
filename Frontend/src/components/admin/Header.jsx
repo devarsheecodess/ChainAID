@@ -9,6 +9,19 @@ const Header = () => {
         setIsMenuOpen(!isMenuOpen);
     };
 
+    const handleLogout = async (e) => {
+        e.preventDefault()
+        try {
+            const cf = window.confirm("Are you sure you want to logout?");
+            if (!cf) return;
+            localStorage.clear()
+            window.location.href = '/';
+        } catch (err) {
+            console.error("Logout Error:", err);
+            alert("Something went wrong. Please try again.");
+        }
+    }
+
     return (
         <header className="fixed top-0 left-0 w-full bg-indigo-900 text-white shadow-md z-50">
             <div className="max-w-7xl mx-auto px-4">
@@ -54,7 +67,7 @@ const Header = () => {
                     {/* User Profile / Logout */}
                     <div className="hidden md:flex items-center">
                         <div className="border-l border-indigo-700 pl-4 ml-4">
-                            <button className="flex items-center text-indigo-200 hover:text-white transition">
+                            <button onClick={(e) => handleLogout(e)} className="flex items-center text-indigo-200 hover:text-white transition">
                                 <LogOut size={20} className="mr-2 text-white" />
                                 <span className='text-white'>Logout</span>
                             </button>
@@ -110,7 +123,7 @@ const Header = () => {
                         <div className="border-t border-black/50 pt-2 mt-2">
                             <button
                                 className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-indigo-200 hover:text-white bg-black/50 mb-5"
-                                onClick={toggleMenu}
+                                onClick={(e) => handleLogout(e)}
                             >
                                 <div className="flex items-center justify-center p-2 pt-3 pb-3 rounded-lg">
                                     <LogOut size={18} className="mr-3 text-white" />

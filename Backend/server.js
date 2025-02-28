@@ -136,6 +136,66 @@ app.post("/organization/login", async (req, res) => {
   }
 });
 
+// Admin login
+app.post("/admin/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const donor = await Donor.findOne({ email }).lean();
+
+    // Check if donor exists
+    if (!donor) {
+      return res.json({ status: "error", error: "Donor doesn't exist!" });
+    }
+
+    // Check if the donor is an admin
+    if (donor.role !== "admin") {
+      return res.json({ status: "error", error: "Not an admin!" });
+    }
+
+    // Compare password
+    const isPasswordValid = await bcrypt.compare(password, donor.password);
+    if (!isPasswordValid) {
+      return res.json({ status: "error", error: "Invalid username/password" });
+    }
+
+    // ✅ Successful login: Return admin ID
+    return res.json({
+      status: "loggedIn",
+      id: donor.id, // Ensuring MongoDB ObjectId is properly sent
+    });
+  } catch (err) {
+    console.error("Error in admin login:", err);
+    return res
+      .status(500)
+      .json({ status: "error", error: "Internal server error" });
+  }
+});
+
+// Check if donor is admin
+app.get("/admin/check", async (req, res) => {
+  const { id } = req.query;
+
+  try {
+    const donor = await Donor.findOne({ id: id }).lean();
+
+    if (!donor) {
+      return res.json({ status: "error", error: "Donor not found" });
+    }
+
+    if (donor.role === "admin") {
+      return res.json({ status: "success" });
+    }
+
+    return res.json({ status: "error", error: "Not an admin" });
+  } catch (err) {
+    console.error("Admin Check Error:", err);
+    return res
+      .status(500)
+      .json({ status: "error", error: "Internal server error" });
+  }
+});
+
 // Post organization info
 app.post("/organization/info", async (req, res) => {
   const data = req.body;
