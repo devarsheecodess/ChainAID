@@ -71,7 +71,7 @@ const Landing = () => {
                             </div>
                             <div className="absolute -bottom-6 left-4 bg-white p-4 rounded-lg shadow-lg">
                                 <p className="text-sm text-gray-500">Organizations</p>
-                                <p className="text-xl font-bold text-center text-teal-500">{numOrgs}</p>
+                                <p className="text-xl font-bold text-center text-teal-500">{numOrgs || 0}</p>
                             </div>
                         </div>
 

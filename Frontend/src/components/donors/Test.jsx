@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { connectWallet } from "../Wallet";
+import { connectWallet } from "./Wallet";
 import { donate } from "../Donation";
 import { ethers } from "ethers";
 

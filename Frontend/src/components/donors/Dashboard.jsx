@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, User, X, LogOut } from 'lucide-react';
 import axios from 'axios';
 import Loader from '../Loader';
+import { donate } from "./Donation";
 
 const Dashboard = () => {
     const [organizations, setOrganizations] = useState([]);
@@ -12,6 +13,12 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(false);
     const [donorName, setDonorName] = useState(localStorage.getItem('donorName').split(' ')[0]);
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+    const [stats, setStats] = useState({
+        totalDonations: 0,
+        totalAmount: 0,
+    })
+    const [walletAddress, setWalletAddress] = useState(localStorage.getItem("walletAddress") || "");
+    const [amount, setAmount] = useState("");
 
     // Filter organizations based on search term
     const filteredOrganizations = organizations.filter(org =>
@@ -61,6 +68,42 @@ const Dashboard = () => {
         }
     }
 
+    const handleDonate = async (e, address) => {
+        e.preventDefault()
+
+        if (!amount || isNaN(amount) || Number(amount) <= 0) {
+            alert("Enter a valid amount!");
+            return;
+        }
+
+        try {
+            console.log(`Sending ${amount} ETH...`);
+
+            const txResponse = await donate(amount);
+            console.log("Transaction sent:", txResponse.hash);
+
+            alert("Waiting for transaction confirmation...");
+            const receipt = await txResponse.wait();
+
+            if (receipt.status === 1) {
+                alert("Donation Successful!");
+                setAmount("");
+                await getBalance();
+            } else {
+                alert("Transaction reverted!");
+            }
+        } catch (error) {
+            console.error("Donation failed:", error);
+
+            if (error.code === "INSUFFICIENT_FUNDS") {
+                alert("Insufficient balance!");
+            } else {
+                console.log("Donation failed!");
+            }
+        }
+        window.location.reload()
+    }
+
     return (
         <div className="bg-gray-100 min-h-screen">
             {/* Header */}
@@ -92,12 +135,12 @@ const Dashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-500">
                         <p className="text-gray-600 mb-2">Your Donations</p>
-                        <h2 className="text-4xl font-bold">24</h2>
+                        <h2 className="text-4xl font-bold">{stats.totalDonations || 0}</h2>
                         <p className="text-gray-500 mt-2">Total donations made</p>
                     </div>
                     <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-teal-500">
                         <p className="text-gray-600 mb-2">Amount Donated</p>
-                        <h2 className="text-4xl font-bold">8.45 ETH</h2>
+                        <h2 className="text-4xl font-bold">{stats.totalAmount || 0} ETH</h2>
                         <p className="text-gray-500 mt-2">Total contribution</p>
                     </div>
                 </div>
@@ -195,11 +238,10 @@ const Dashboard = () => {
                             <div className="mt-6 pt-6 border-t border-gray-200">
                                 <h4 className="font-semibold text-gray-800 mb-4">Make a Donation</h4>
                                 <div className="flex mb-4">
-                                    <button className="flex-1 mr-2 py-2 px-4 bg-gray-200 rounded-lg text-center font-medium hover:bg-gray-300">0.1 ETH</button>
-                                    <button className="flex-1 mx-2 py-2 px-4 bg-gray-200 rounded-lg text-center font-medium hover:bg-gray-300">0.5 ETH</button>
-                                    <button className="flex-1 ml-2 py-2 px-4 bg-gray-200 rounded-lg text-center font-medium hover:bg-gray-300">1.0 ETH</button>
+                                    <input onChange={(e) => setAmount(e.target.value)} type='Number' className='bg-gray-200 p-2 rounded-md w-full outline-0' placeholder='Enter an amount (in ETH)' />
                                 </div>
-                                <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded">
+                                <button onClick={(e) => handleDonate(e, selectedOrg.walletAddress
+                                )} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded">
                                     Confirm Donation
                                 </button>
                             </div>

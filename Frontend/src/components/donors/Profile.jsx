@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import axios from 'axios';
+import FullLoader from '../FullLoader';
+import { connectWallet } from './Wallet';
+import { ethers } from 'ethers';
 
 const Profile = () => {
     const [formData, setFormData] = useState({
-        name: 'John Doe',
-        email: 'johndoe@example.com',
-        phone: '+1 234 567 8901',
-        address: '123 Blockchain Street, Crypto City, CC 12345',
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
@@ -17,6 +20,7 @@ const Profile = () => {
         new: false,
         confirm: false
     });
+    const [loading, setLoading] = useState(true);
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const handleChange = (e) => {
@@ -36,6 +40,7 @@ const Profile = () => {
 
     const fetchUserData = async () => {
         try {
+            setLoading(true);
             const response = await axios.get(`${BACKEND_URL}/donor/data`, {
                 params: { id: localStorage.getItem('donorId') }
             });
@@ -43,6 +48,8 @@ const Profile = () => {
             setFormData(response.data);
         } catch (err) {
             console.error("Error fetching donor data:", err);
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -92,8 +99,92 @@ const Profile = () => {
         }
     };
 
+    // Connect Metamask
+    const [walletAddress, setWalletAddress] = useState("");
+    const [donationAmount, setDonationAmount] = useState("");
+    const [balance, setBalance] = useState(0);
+    const [connected, setConnected] = useState(false);
+
+    let provider;
+
+    if (window.ethereum) {
+        provider = new ethers.BrowserProvider(window.ethereum);
+    } else {
+        alert("Please install MetaMask!");
+    }
+
+    const getBalance = async () => {
+        if (!walletAddress) return;
+        try {
+            const balanceWei = await provider.getBalance(walletAddress);
+            setBalance(ethers.formatEther(balanceWei)); // Convert balance from Wei to ETH
+        } catch (error) {
+            console.error("Error fetching balance:", error);
+        }
+    };
+
+    const handleConnect = async () => {
+        const wallet = await connectWallet();
+        if (wallet) {
+            setWalletAddress(wallet.address);
+            localStorage.setItem("walletAddress", wallet.address); // ✅ Store wallet address
+            setConnected(true);
+            await getBalance();
+        }
+    };
+
+    const isMetaMaskConnected = async (setConnected, setWalletAddress) => {
+        if (!window.ethereum) {
+            console.log("❌ MetaMask not found!");
+            setConnected(false);
+            setWalletAddress(null);
+            return;
+        }
+
+        try {
+            const accounts = await window.ethereum.request({ method: "eth_accounts" });
+            if (accounts.length > 0) {
+                setConnected(true);
+                setWalletAddress(accounts[0]); // Update state with wallet address
+            } else {
+                setConnected(false);
+                setWalletAddress(null);
+            }
+        } catch (error) {
+            console.error("⚠️ Error checking MetaMask connection:", error);
+            setConnected(false);
+            setWalletAddress(null);
+        }
+    };
+
+    useEffect(() => {
+        isMetaMaskConnected(setConnected, setWalletAddress);
+
+        // Listen for account changes
+        if (window.ethereum) {
+            window.ethereum.on("accountsChanged", () => {
+                isMetaMaskConnected(setConnected, setWalletAddress);
+            });
+        }
+
+        return () => {
+            if (window.ethereum) {
+                window.ethereum.removeListener("accountsChanged", () => {
+                    isMetaMaskConnected(setConnected, setWalletAddress);
+                });
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        if (connected) {
+            getBalance();
+        }
+    }, [connected]);
+
     return (
         <div className="min-h-screen bg-indigo-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+            {loading && <FullLoader />}
             <div className="max-w-4xl mx-auto">
                 <div className="text-center mb-12">
                     <h1 className="text-5xl font-bold mb-6">
@@ -290,10 +381,10 @@ const Profile = () => {
 
                     {/* Wallet Connection Section */}
                     <div className="mt-12 pt-6 border-t border-indigo-600">
-                        <div className="flex justify-between items-center mb-4">
+                        <div className="flex justify-between items-center mb-6">
                             <h2 className="text-2xl font-bold">Connected Wallet</h2>
-                            <div className="px-3 py-1 rounded-full bg-teal-400/20 text-teal-400 text-sm">
-                                Active
+                            <div className={`px-3 py-1 rounded-full text-sm font-medium ${connected ? 'bg-teal-400/20 text-teal-400 border border-teal-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
+                                {connected ? "Connected" : "Not Connected"}
                             </div>
                         </div>
 
@@ -306,12 +397,18 @@ const Profile = () => {
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-300">ETH Wallet</p>
-                                    <p className="font-mono">0x71C7...F92E</p>
+                                    <p className="font-mono">{walletAddress ? (walletAddress.slice(0, 5) + "..." + walletAddress.slice(-5)) : ("Not available")}</p>
                                 </div>
                             </div>
-                            <button className="text-red-400 hover:text-red-300 px-3 py-1 rounded-full bg-red-400/10 hover:bg-red-400/20 transition">
-                                Disconnect
-                            </button>
+                            {
+                                connected ? (
+                                    <div>Balance: {balance} ETH</div>
+                                ) : (
+                                    <button onClick={handleConnect} className="w-full sm:w-auto text-teal-400 hover:text-teal-300 px-4 py-2 rounded-full bg-teal-400/10 hover:bg-teal-400/20 transition border border-teal-500/20">
+                                        Connect Wallet
+                                    </button>
+                                )
+                            }
                         </div>
                     </div>
                 </div>
