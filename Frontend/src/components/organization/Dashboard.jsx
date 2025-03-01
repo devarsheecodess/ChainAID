@@ -1,36 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Edit, User, Download, ArrowUpRight, ChevronDown, LogOut, CheckCircle, XCircle } from 'lucide-react';
+import axios from 'axios';
+import FullLoader from '../FullLoader';
 
 const OrganizationDashboard = () => {
-    // Sample data for donations and donors
-    const [donations, setDonations] = useState({
-        total: 156,
-        amount: "18.45 ETH",
-        recent: 12
-    });
+    const [stats, setStats] = useState({ total: 0, amount: 0, recent: 0 });
+
     const [orgName, setOrgName] = useState(localStorage.getItem('organizationName'));
     const [orgImg, setOrgImg] = useState(localStorage.getItem('organizationImage'));
     const [verified, setVerified] = useState(localStorage.getItem('verified'));
+    const [loading, setLoading] = useState(true);
 
-    const [donors, setDonors] = useState([
-        { id: 1, name: "Alex Johnson", address: "0x71C...9E3B", amount: "2.5 ETH", date: "2025-02-25", recurring: true },
-        { id: 2, name: "Maria Garcia", address: "0x42F...7A1C", amount: "1.2 ETH", date: "2025-02-22", recurring: false },
-        { id: 3, name: "Anonymous Donor", address: "0x93D...4F2D", amount: "3.0 ETH", date: "2025-02-20", recurring: false },
-        { id: 4, name: "Wei Chen", address: "0x38B...2C5E", amount: "0.75 ETH", date: "2025-02-18", recurring: true },
-        { id: 5, name: "Sarah Ahmed", address: "0x62A...8D3F", amount: "1.5 ETH", date: "2025-02-15", recurring: false },
-        { id: 6, name: "James Wilson", address: "0x19C...5A7B", amount: "2.0 ETH", date: "2025-02-12", recurring: true },
-        { id: 7, name: "Priya Patel", address: "0x27D...9C4E", amount: "0.5 ETH", date: "2025-02-10", recurring: false },
-        { id: 8, name: "Anonymous Donor", address: "0x85F...1E3A", amount: "4.0 ETH", date: "2025-02-08", recurring: false },
-        { id: 9, name: "David Kim", address: "0x41B...7F2D", amount: "1.0 ETH", date: "2025-02-05", recurring: true },
-        { id: 10, name: "Emma Roberts", address: "0x59C...2E4B", amount: "2.0 ETH", date: "2025-02-02", recurring: false }
-    ]);
+    const [donors, setDonors] = useState([]);
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const [searchTerm, setSearchTerm] = useState('');
 
     // Filter donors based on search term
     const filteredDonors = donors.filter(donor =>
-        donor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        donor.address.toLowerCase().includes(searchTerm.toLowerCase())
+        donor.donorName.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const handleLogout = () => {
@@ -41,10 +29,44 @@ const OrganizationDashboard = () => {
         }
     }
 
+    const fetchStats = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get(
+                `${BACKEND_URL}/organization/stats?id=${localStorage.getItem("organizationId")}`
+            );
+
+            setStats(response.data);
+
+            console.log(response.data);
+        } catch (err) {
+            console.error("Error fetching stats:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchDonors = async () => {
+        try {
+            const response = await axios.get(
+                `${BACKEND_URL}/organization/donations?id=${localStorage.getItem("organizationId")}`
+            );
+
+            setDonors(response.data);
+        } catch (err) {
+            console.error("Error fetching donors:", err);
+        }
+    }
+
+    useEffect(() => {
+        fetchStats();
+        fetchDonors();
+    }, []);
+
     return (
         <div className="bg-gray-100 min-h-screen">
             {/* Header */}
-            <header className="bg-indigo-900 text-white p-4 flex justify-between items-center">
+            <header className="fixed w-full bg-indigo-900 text-white p-4 flex justify-between items-center z-50">
                 <div className="flex items-center sm:mb-0">
                     <div className="mr-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -65,6 +87,8 @@ const OrganizationDashboard = () => {
                 </div>
             </header>
 
+            {loading && <FullLoader />}
+
             <main className="container mx-auto py-8 px-4">
                 <h1 className="text-3xl font-bold mb-8">Welcome Back!</h1>
 
@@ -77,10 +101,10 @@ const OrganizationDashboard = () => {
                         <div className="flex-grow">
                             <h2 className="text-2xl font-bold text-gray-800">{orgName}</h2>
                             <span
-                                className={`inline-flex items-center gap-1 mt-5 rounded-full px-3 py-1 text-sm font-semibold ${verified === true ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                className={`inline-flex items-center gap-1 mt-5 rounded-full px-3 py-1 text-sm font-semibold ${verified ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                     }`}
                             >
-                                {verified === true ? (
+                                {verified ? (
                                     <>
                                         <CheckCircle size={16} />
                                         Verified
@@ -101,17 +125,17 @@ const OrganizationDashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-500">
                         <p className="text-gray-600 mb-2">Total Donations</p>
-                        <h2 className="text-4xl font-bold">{donations.total}</h2>
+                        <h2 className="text-4xl font-bold">{stats.total}</h2>
                         <p className="text-gray-500 mt-2">All time</p>
                     </div>
                     <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-teal-500">
                         <p className="text-gray-600 mb-2">Amount Received</p>
-                        <h2 className="text-4xl font-bold">{donations.amount}</h2>
+                        <h2 className="text-4xl font-bold">{stats.amount} ETH</h2>
                         <p className="text-gray-500 mt-2">Total contributions</p>
                     </div>
                     <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
                         <p className="text-gray-600 mb-2">Recent Activity</p>
-                        <h2 className="text-4xl font-bold">{donations.recent}</h2>
+                        <h2 className="text-4xl font-bold">{stats.recent}</h2>
                         <p className="text-gray-500 mt-2">Last 7 days</p>
                     </div>
                 </div>
@@ -143,40 +167,18 @@ const OrganizationDashboard = () => {
                             <thead>
                                 <tr className="bg-gray-50 border-b">
                                     <th className="p-3 text-left text-gray-600 font-semibold">Donor</th>
-                                    <th className="p-3 text-left text-gray-600 font-semibold">Wallet Address</th>
                                     <th className="p-3 text-right text-gray-600 font-semibold">Amount</th>
                                     <th className="p-3 text-left text-gray-600 font-semibold">Date</th>
-                                    <th className="p-3 text-center text-gray-600 font-semibold">Type</th>
-                                    <th className="p-3 text-center text-gray-600 font-semibold">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredDonors.map((donor) => (
                                     <tr key={donor.id} className="border-b hover:bg-gray-50">
                                         <td className="p-3">
-                                            <div className="font-medium text-gray-800">{donor.name}</div>
-                                        </td>
-                                        <td className="p-3">
-                                            <div className="font-mono text-gray-600">{donor.address}</div>
+                                            <div className="font-medium text-gray-800">{donor.donorName}</div>
                                         </td>
                                         <td className="p-3 text-right font-medium text-gray-800">{donor.amount}</td>
-                                        <td className="p-3 text-gray-600">{donor.date}</td>
-                                        <td className="p-3 text-center">
-                                            {donor.recurring ? (
-                                                <span className="inline-block bg-teal-100 text-teal-800 rounded-full px-3 py-1 text-xs font-semibold">
-                                                    Recurring
-                                                </span>
-                                            ) : (
-                                                <span className="inline-block bg-blue-100 text-blue-800 rounded-full px-3 py-1 text-xs font-semibold">
-                                                    One-time
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="p-3 text-center">
-                                            <button className="text-indigo-600 hover:text-indigo-800">
-                                                <ArrowUpRight size={18} />
-                                            </button>
-                                        </td>
+                                        <td className="p-3 text-gray-600">{donor.donatedOn.slice(0, 10)}</td>
                                     </tr>
                                 ))}
 

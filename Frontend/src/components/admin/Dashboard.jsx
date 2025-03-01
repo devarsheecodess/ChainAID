@@ -5,34 +5,30 @@ import Loader from '../FullLoader';
 
 const Dashboard = () => {
     // Sample data
-    const [stats, setStats] = useState([{
+    const [stats, setStats] = useState({
         totalOrganizations: 0,
         activeOrganizations: 0,
         blacklistedOrganizations: 0,
         totalDonations: 0,
         totalTransactions: 0,
         pendingVerifications: 0
-    }]);
+    });
 
     const [loading, setLoading] = useState(true);
 
     // Recent transactions data
-    const recentTransactions = [
-        { id: 1, from: "0x7a86...8F2a", to: "Sneha Mandir", amount: "0.5 ETH", time: "2 hours ago" },
-        { id: 2, from: "0x3c4B...9F7A", to: "EcoRestore Foundation", amount: "1.2 ETH", time: "5 hours ago" },
-        { id: 3, from: "0x2d8E...29F7", to: "ChildFirst Initiative", amount: "0.8 ETH", time: "Yesterday" },
-    ];
+    const [recentTransactions, setRecentTransactions] = useState([]);
 
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     // Organizations needing verification
-    const [pendingVerifications, setPendingVerifications] = useState([{ id: " ", name: " ", submittedDate: " " }]);
+    const [pendingVerifications, setPendingVerifications] = useState([]);
 
     const fetchStats = async () => {
         try {
             setLoading(true);
             const response = await axios.get(`${BACKEND_URL}/admin/stats`);
-            setStats(response.data)
+            setStats(response.data);
             console.log(response.data);
         } catch (err) {
             console.log(err);
@@ -53,9 +49,23 @@ const Dashboard = () => {
         }
     }
 
+    const fetchRecentTransactions = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get(`${BACKEND_URL}/admin/transactions`);
+            setRecentTransactions(response.data);
+            console.log(response.data);
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     useEffect(() => {
         fetchStats();
         fetchPendingVerifications();
+        fetchRecentTransactions();
     }, []);
 
     return (
@@ -116,7 +126,6 @@ const Dashboard = () => {
                         <span>+5.2% from last month</span>
                     </div>
                 </div>
-
                 {/* Total Transactions */}
                 <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
                     <div className="flex items-center justify-between">
@@ -162,22 +171,22 @@ const Dashboard = () => {
                     </div>
                     <div className="flex-grow overflow-y-auto">
                         <div className="divide-y divide-gray-200">
-                            {recentTransactions.map(tx => (
-                                <div key={tx.id} className="p-4 hover:bg-gray-50">
-                                    <div className="flex justify-between items-center">
-                                        <div>
-                                            <p className="text-sm text-gray-600">From: <span className="font-mono">{tx.from}</span></p>
-                                            <p className="text-sm font-medium text-gray-800">To: {tx.to}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-sm font-bold text-indigo-700">{tx.amount}</p>
-                                            <p className="text-xs text-gray-500">{tx.time}</p>
+                            {recentTransactions && recentTransactions.length > 0 ? (
+                                recentTransactions.map(tx => (
+                                    <div key={tx.id} className="p-4 hover:bg-gray-50">
+                                        <div className="flex justify-between items-center">
+                                            <div>
+                                                <p className="text-sm text-gray-600">From: <span className="font-mono">{tx.from}</span></p>
+                                                <p className="text-sm font-medium text-gray-800">To: {tx.to}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-sm font-bold text-indigo-700">{tx.amount} ETH</p>
+                                                <p className="text-xs text-gray-500">Date: {tx.time.slice(0, 10)}<p>Time: {tx.time.slice(11, 16)} hrs</p></p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-
-                            {recentTransactions.length === 0 && (
+                                ))
+                            ) : (
                                 <div className="p-8 text-center text-gray-500">
                                     <p>No recent transactions.</p>
                                 </div>
@@ -190,7 +199,6 @@ const Dashboard = () => {
                         </a>
                     </div>
                 </div>
-
                 {/* Pending Verifications */}
                 <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full">
                     <div className="p-4 bg-indigo-900 text-white">

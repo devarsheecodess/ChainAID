@@ -126,14 +126,26 @@ router.put("/update", async (req, res) => {
 
 // donate to organization
 router.post("/donate", async (req, res) => {
-  const {data} = req.body;
-  try{
-    const donation = new Donation(data);
+  try {
+    const donation = new Donation(req.body);
     await donation.save();
-    res.json({status: "success"});
-  }catch(err){
+    res.json({ status: "success" });
+  } catch (err) {
     res.status(500).send(err);
   }
-})
+});
+
+// Stats
+router.get("/stats", async (req, res) => {
+  const { id } = req.query;
+  try {
+    const donations = await Donation.find({ donorId: id }).lean();
+    const totalDonations = donations.length;
+    const totalAmount = donations.reduce((acc, curr) => acc + curr.amount, 0);
+    res.json({ totalDonations, totalAmount });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
 
 module.exports = router;

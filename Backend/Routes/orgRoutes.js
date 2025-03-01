@@ -186,4 +186,31 @@ router.get("/donations", async (req, res) => {
   }
 });
 
+// Stats
+router.get("/stats", async (req, res) => {
+  const { id } = req.query;
+  try {
+    const total_ = await Donation.find({ orgId: id });
+    const total = total_.length;
+
+    // Calculate total amount donated
+    const amount = total_.reduce((acc, curr) => acc + curr.amount, 0);
+
+    // Calculate donations in the last 7 days using `donatedOn`
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const recent = total_.filter(
+      (donation) => donation.donatedOn > sevenDaysAgo
+    ).length;
+
+    res.json({
+      total,
+      amount,
+      recent,
+    });
+  } catch (err) {
+    console.error("Error fetching stats:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 module.exports = router;

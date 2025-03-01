@@ -17,6 +17,13 @@ export async function donate(amount) {
     const signer = await provider.getSigner();
     const contract = new ethers.Contract(CONTRACT_ADDRESS, DonationABI, signer);
 
+    const walletAddress = await signer.getAddress();
+    localStorage.setItem("walletAddress", walletAddress); // ✅ Corrected
+    if (!walletAddress) {
+      console.log("Wallet address not found!");
+      return;
+    }
+
     // Ensure amount is a string
     const donationAmount = ethers.parseEther(amount.toString());
 
@@ -41,6 +48,8 @@ export async function donate(amount) {
 
     if (receipt.status === 1) {
       alert("Donation successful!");
+
+      return;
     } else {
       alert("Transaction reverted!");
     }

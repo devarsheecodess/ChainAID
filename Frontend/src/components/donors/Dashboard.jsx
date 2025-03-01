@@ -3,6 +3,7 @@ import { Search, User, X, LogOut } from 'lucide-react';
 import axios from 'axios';
 import Loader from '../Loader';
 import { donate } from "./Donation";
+import { v4 as uuidV4 } from 'uuid';
 
 const Dashboard = () => {
     const [organizations, setOrganizations] = useState([]);
@@ -17,8 +18,17 @@ const Dashboard = () => {
         totalDonations: 0,
         totalAmount: 0,
     })
-    const [walletAddress, setWalletAddress] = useState(localStorage.getItem("walletAddress") || "");
     const [amount, setAmount] = useState("");
+    const [donationDetails, setDonationDetails] = useState({
+        id: uuidV4(),
+        orgId: "",
+        donorId: localStorage.getItem("donorId") || "",
+        donorName: localStorage.getItem("donorName") || "",
+        orgName: "",
+        orgWalletAddress: "",
+        amount: 0,
+        donatedOn: new Date().toISOString(),
+    });
 
     // Filter organizations based on search term
     const filteredOrganizations = organizations.filter(org =>
@@ -36,7 +46,6 @@ const Dashboard = () => {
             setLoading(true);
             const response = await axios.get(`${BACKEND_URL}/organization/info`);
             setOrganizations(response.data);
-            console.log(response.data);
         } catch (err) {
             console.error(err);
         } finally {
@@ -55,11 +64,6 @@ const Dashboard = () => {
         }
     }
 
-    useEffect(() => {
-        fetchOrgInfo();
-        getGreeting();
-    }, []);
-
     const handleLogout = () => {
         const cf = window.confirm('Are you sure you want to logout?');
         if (cf) {
@@ -68,7 +72,16 @@ const Dashboard = () => {
         }
     }
 
-    const handleDonate = async (e, address) => {
+    const fetchStats = async () => {
+        try {
+            const response = await axios.get(`${BACKEND_URL}/donor/stats?id=${localStorage.getItem("donorId")}`);
+            setStats(response.data);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    const handleDonate = async (e) => {
         e.preventDefault()
 
         if (!amount || isNaN(amount) || Number(amount) <= 0) {
@@ -87,8 +100,9 @@ const Dashboard = () => {
 
             if (receipt.status === 1) {
                 alert("Donation Successful!");
+                const response = await axios.post(`${BACKEND_URL}/donor/donate`, donationDetails);
                 setAmount("");
-                await getBalance();
+                window.location.reload()
             } else {
                 alert("Transaction reverted!");
             }
@@ -101,8 +115,32 @@ const Dashboard = () => {
                 console.log("Donation failed!");
             }
         }
-        window.location.reload()
     }
+
+    // Use Effects
+    useEffect(() => {
+        if (selectedOrg) {
+            setDonationDetails((prev) => ({
+                ...prev,
+                orgId: selectedOrg.id,
+                orgName: selectedOrg.name,
+                orgWalletAddress: selectedOrg.walletAddress,
+            }));
+        }
+    }, [selectedOrg]); // Runs only when `selectedOrg` changes
+
+    useEffect(() => {
+        setDonationDetails((prev) => ({
+            ...prev,
+            amount: Number(amount),
+        }));
+    }, [amount]);
+
+    useEffect(() => {
+        fetchOrgInfo();
+        getGreeting();
+        fetchStats();
+    }, []);
 
     return (
         <div className="bg-gray-100 min-h-screen">
@@ -240,8 +278,7 @@ const Dashboard = () => {
                                 <div className="flex mb-4">
                                     <input onChange={(e) => setAmount(e.target.value)} type='Number' className='bg-gray-200 p-2 rounded-md w-full outline-0' placeholder='Enter an amount (in ETH)' />
                                 </div>
-                                <button onClick={(e) => handleDonate(e, selectedOrg.walletAddress
-                                )} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded">
+                                <button onClick={(e) => handleDonate(e)} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded">
                                     Confirm Donation
                                 </button>
                             </div>

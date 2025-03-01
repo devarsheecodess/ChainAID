@@ -149,8 +149,20 @@ router.get("/stats", async (req, res) => {
       blacklsted: true,
     });
 
-    const totalDonations = 0; // Placeholder, update when needed
-    const totalTransactions = 0; // Placeholder for now
+    const totalAmount = await Donation.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: "$amount" }, // Summing all donation amounts
+        },
+      },
+    ]);
+
+    // If aggregation returns results, extract the totalAmount
+    const totalDonations =
+      totalAmount.length > 0 ? totalAmount[0].totalAmount : 0;
+
+    const totalTransactions = await Donation.countDocuments();
 
     const unverified = await OrgInfo.countDocuments({ verified: false });
     const blacklisted = await Organization.countDocuments({ blacklsted: true });
@@ -234,17 +246,21 @@ router.put("/whitelist", async (req, res) => {
 // Get transactions
 router.get("/transactions", async (req, res) => {
   try {
-    const transactions = await Donation.find();
-    const response = {
-      id: transactions.id,
-      orgName: transactions.orgName,
-      donorWalletAddress: transactions.donorWalletAddress,
-      amount: transactions.amount,
-      donatedOn: transactions.donatedOn,
-    };
-    res.json(response);
+    const transactions = await Donation.find(); // Get all transactions
+
+    // Map the database results to the desired format
+    const response = transactions.map((tx) => ({
+      id: tx._id, // Use _id for MongoDB documents
+      from: tx.donorName,
+      to: tx.orgName,
+      amount: tx.amount,
+      time: tx.donatedOn,
+    }));
+
+    res.json(response); // Send the array of transactions
   } catch (err) {
-    console.log(err);
+    console.error(err); // Log the error
+    res.status(500).json({ error: "Failed to fetch transactions" }); // Send an error response
   }
 });
 
