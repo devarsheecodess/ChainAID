@@ -153,30 +153,38 @@ const Dashboard = () => {
             {/* Recent Activity */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Recent Transactions */}
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full">
                     <div className="p-4 bg-indigo-900 text-white">
                         <h2 className="text-lg font-bold flex items-center">
                             <Activity size={18} className="mr-2" />
                             Recent Transactions
                         </h2>
                     </div>
-                    <div className="divide-y divide-gray-200">
-                        {recentTransactions.map(tx => (
-                            <div key={tx.id} className="p-4 hover:bg-gray-50">
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <p className="text-sm text-gray-600">From: <span className="font-mono">{tx.from}</span></p>
-                                        <p className="text-sm font-medium text-gray-800">To: {tx.to}</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-sm font-bold text-indigo-700">{tx.amount}</p>
-                                        <p className="text-xs text-gray-500">{tx.time}</p>
+                    <div className="flex-grow overflow-y-auto">
+                        <div className="divide-y divide-gray-200">
+                            {recentTransactions.map(tx => (
+                                <div key={tx.id} className="p-4 hover:bg-gray-50">
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <p className="text-sm text-gray-600">From: <span className="font-mono">{tx.from}</span></p>
+                                            <p className="text-sm font-medium text-gray-800">To: {tx.to}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm font-bold text-indigo-700">{tx.amount}</p>
+                                            <p className="text-xs text-gray-500">{tx.time}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+
+                            {recentTransactions.length === 0 && (
+                                <div className="p-8 text-center text-gray-500">
+                                    <p>No recent transactions.</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                    <div className="p-4 bg-gray-50 text-center">
+                    <div className="p-4 bg-gray-50 text-center mt-auto border-t border-gray-200">
                         <a href="/admin/transactions" className="text-sm text-indigo-600 hover:text-indigo-800">
                             View all transactions
                         </a>
@@ -184,35 +192,37 @@ const Dashboard = () => {
                 </div>
 
                 {/* Pending Verifications */}
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full">
                     <div className="p-4 bg-indigo-900 text-white">
                         <h2 className="text-lg font-bold flex items-center">
                             <Shield size={18} className="mr-2" />
                             Pending Verifications
                         </h2>
                     </div>
-                    {pendingVerifications.length > 0 ? (
-                        <div className="divide-y divide-gray-200">
-                            {pendingVerifications.map(org => (
-                                <div key={org.id} className="p-4 hover:bg-gray-50">
-                                    <div className="flex justify-between items-center">
-                                        <p className="font-medium text-gray-800">{org.name}</p>
-                                        <div className="text-right">
-                                            <p className="text-xs text-gray-500">Submitted: {org.submittedDate}</p>
-                                            <a href={`/admin/verify/${org.id}`} className="text-xs text-indigo-600 hover:text-indigo-800">
-                                                Review
-                                            </a>
+                    <div className="flex-grow overflow-y-auto">
+                        {pendingVerifications.length > 0 ? (
+                            <div className="divide-y divide-gray-200">
+                                {pendingVerifications.map(org => (
+                                    <div key={org.id} className="p-4 hover:bg-gray-50">
+                                        <div className="flex justify-between items-center">
+                                            <p className="font-medium text-gray-800">{org.name}</p>
+                                            <div className="text-right">
+                                                <p className="text-xs text-gray-500">Submitted: {org.submittedDate}</p>
+                                                <a href={`/admin/verify/${org.id}`} className="text-xs text-indigo-600 hover:text-indigo-800">
+                                                    Review
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="p-8 text-center text-gray-500">
-                            <p>No pending verifications.</p>
-                        </div>
-                    )}
-                    <div className="p-4 bg-gray-50 text-center">
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="p-8 text-center text-gray-500">
+                                <p>No pending verifications.</p>
+                            </div>
+                        )}
+                    </div>
+                    <div className="p-4 text-center bg-gray-50 mt-auto border-t border-gray-200">
                         <a href="/admin/verify" className="text-sm text-indigo-600 hover:text-indigo-800">
                             Go to verification page
                         </a>
