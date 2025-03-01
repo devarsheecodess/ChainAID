@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 
 // Models
 const Donor = require("../Models/Donor");
+const Donation = require("../Models/Donation");
 
 // Function to hash passwords
 const hashPassword = async (password) => {
@@ -122,5 +123,17 @@ router.put("/update", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
+
+// donate to organization
+router.post("/donate", async (req, res) => {
+  const {data} = req.body;
+  try{
+    const donation = new Donation(data);
+    await donation.save();
+    res.json({status: "success"});
+  }catch(err){
+    res.status(500).send(err);
+  }
+})
 
 module.exports = router;

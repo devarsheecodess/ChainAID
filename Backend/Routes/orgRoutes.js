@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 // Models
 const Organization = require("../Models/Organization");
 const OrgInfo = require("../Models/OrgInfo");
+const Donation = require("../Models/Donation");
 
 // Function to hash passwords
 const hashPassword = async (password) => {
@@ -171,6 +172,17 @@ router.put("/update", async (req, res) => {
     res.json({ success: true, message: "Organization updated successfully" });
   } catch (err) {
     console.log(err);
+  }
+});
+
+// Get donations for an organization
+router.get("/donations", async (req, res) => {
+  const { id } = req.query;
+  try {
+    const donations = await Donation.find({ orgId: id });
+    res.json(donations);
+  } catch (err) {
+    res.status(500).send(err);
   }
 });
 

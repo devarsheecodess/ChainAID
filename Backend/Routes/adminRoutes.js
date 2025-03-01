@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 const Organization = require("../Models/Organization");
 const OrgInfo = require("../Models/OrgInfo");
 const Donor = require("../Models/Donor");
+const Donation = require("../Models/Donation");
 
 // Admin login
 router.post("/login", async (req, res) => {
@@ -225,6 +226,23 @@ router.put("/whitelist", async (req, res) => {
       { new: true }
     );
     res.json({ status: "success", message: "Organization whitelisted" });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// Get transactions
+router.get("/transactions", async (req, res) => {
+  try {
+    const transactions = await Donation.find();
+    const response = {
+      id: transactions.id,
+      orgName: transactions.orgName,
+      donorWalletAddress: transactions.donorWalletAddress,
+      amount: transactions.amount,
+      donatedOn: transactions.donatedOn,
+    };
+    res.json(response);
   } catch (err) {
     console.log(err);
   }
