@@ -34,7 +34,10 @@ contract Donation {
         require(balance > 0, "No funds to withdraw");
 
         organizationBalances[msg.sender] = 0;
-        payable(msg.sender).transfer(balance);
+
+        (bool sent, bytes memory data) = payable(msg.sender).call{value: balance}("");
+        require(sent, "Failed to send Ether");
+
         emit FundsWithdrawn(msg.sender, balance, block.timestamp);
     }
 
@@ -44,5 +47,10 @@ contract Donation {
 
     function getOrganizationBalance(address _organization) external view returns (uint256) {
         return organizationBalances[_organization];
+    }
+
+    // Optional: Fallback function to handle direct Ether transfers
+    receive() external payable {
+        revert("Direct Ether transfers are not supported. Use the donate function.");
     }
 }

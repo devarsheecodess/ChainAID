@@ -11,19 +11,31 @@ describe("Donation Smart Contract", function () {
 
     const Donation = await ethers.getContractFactory("Donation");
     donationContract = await Donation.deploy();
-    await donationContract.waitForDeployment();
   });
 
   it("Should emit an event when a donation is made", async function () {
-    const donationAmount = ethers.parseEther("1");
+    const donationAmount = "1000000000000000000"; // 1 Ether in wei
+    const organization = addr2;
 
     await expect(
-      addr1.sendTransaction({
-        to: donationContract.target, // ✅ FIXED: Use `target` for contract address
-        value: donationAmount,
-      })
+      donationContract
+        .connect(addr1)
+        .donate(organization, { value: donationAmount })
     )
       .to.emit(donationContract, "DonationReceived")
-      .withArgs(addr1.address, donationAmount, anyValue);
+      .withArgs(addr1.address, organization, donationAmount, anyValue);
+  });
+
+  it("Should allow organizations to withdraw funds", async function () {
+    const donationAmount = "1000000000000000000";
+    const organization = addr2;
+
+    await donationContract
+      .connect(addr1)
+      .donate(organization, { value: donationAmount });
+
+    await expect(donationContract.connect(organization).withdrawFunds())
+      .to.emit(donationContract, "FundsWithdrawn")
+      .withArgs(organization, donationAmount, anyValue);
   });
 });
