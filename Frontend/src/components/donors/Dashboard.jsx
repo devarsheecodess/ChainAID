@@ -134,6 +134,8 @@ const Dashboard = () => {
                 orgWalletAddress: selectedOrg.walletAddress,
             }));
         }
+
+        localStorage.setItem("orgWalletAddress", selectedOrg?.walletAddress);
     }, [selectedOrg]); // Runs only when `selectedOrg` changes
 
     useEffect(() => {
@@ -273,7 +275,7 @@ const Dashboard = () => {
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full overflow-hidden relative animate-fadeIn">
                         <button
                             className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-                            onClick={() => setShowDonateModal(false)}
+                            onClick={() => { setShowDonateModal(false); localStorage.removeItem("orgWalletAddress") }}
                         >
                             <X size={24} />
                         </button>

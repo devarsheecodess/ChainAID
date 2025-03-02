@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
 import rawABI from "../../contracts/DonationABI.json";
 const DonationABI = rawABI.abi; // Extract ABI if it's nested inside an object
-import { CONTRACT_ADDRESS } from "../../contracts/constants";
 
 export async function donate(amount) {
   if (!window.ethereum) {
@@ -15,7 +14,11 @@ export async function donate(amount) {
     await window.ethereum.request({ method: "eth_requestAccounts" });
 
     const signer = await provider.getSigner();
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, DonationABI, signer);
+    const contract = new ethers.Contract(
+      localStorage.getItem("orgWalletAddress"),
+      DonationABI,
+      signer
+    );
 
     const walletAddress = await signer.getAddress();
     localStorage.setItem("walletAddress", walletAddress); // ✅ Corrected
