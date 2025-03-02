@@ -153,7 +153,8 @@ const Dashboard = () => {
     }, []);
 
     useEffect(() => {
-        fetch(`${BACKEND_URL}/auth/donor/cookies`, {
+        if(google){
+            fetch(`${BACKEND_URL}/auth/donor/cookies`, {
             method: "GET",
             credentials: "include", // Important: Allows sending cookies
         })
@@ -161,10 +162,10 @@ const Dashboard = () => {
             .then((data) => {
                 localStorage.setItem("donorName", data.donorName);
                 localStorage.setItem("donorId", data.donorId);
-                localStorage.setItem("google", true);
                 setDonorName(data.donorName);
             })
             .catch((err) => console.error("Error fetching donor:", err));
+        }
     }, []);
 
     return (
