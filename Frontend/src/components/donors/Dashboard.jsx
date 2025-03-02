@@ -100,6 +100,7 @@ const Dashboard = () => {
             console.log(`Sending ${amount} ETH...`);
 
             const txResponse = await donate(amount);
+            const response = await axios.post(`${BACKEND_URL}/donor/donate`, donationDetails);
             console.log("Transaction sent:", txResponse.hash);
 
             alert("Waiting for transaction confirmation...");
@@ -107,7 +108,7 @@ const Dashboard = () => {
 
             if (receipt.status === 1) {
                 alert("Donation Successful!");
-                const response = await axios.post(`${BACKEND_URL}/donor/donate`, donationDetails);
+                console.log(donationDetails)
                 setAmount("");
                 window.location.reload()
             } else {

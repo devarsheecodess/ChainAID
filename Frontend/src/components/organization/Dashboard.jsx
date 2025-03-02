@@ -177,7 +177,7 @@ const OrganizationDashboard = () => {
                                         <td className="p-3">
                                             <div className="font-medium text-gray-800">{donor.donorName}</div>
                                         </td>
-                                        <td className="p-3 text-right font-medium text-gray-800">{donor.amount}</td>
+                                        <td className="p-3 text-right font-medium text-gray-800">{donor.amount} ETH</td>
                                         <td className="p-3 text-gray-600">{donor.donatedOn.slice(0, 10)}</td>
                                     </tr>
                                 ))}

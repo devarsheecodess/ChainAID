@@ -181,7 +181,7 @@ const Dashboard = () => {
                                             </div>
                                             <div className="text-right">
                                                 <p className="text-sm font-bold text-indigo-700">{tx.amount} ETH</p>
-                                                <p className="text-xs text-gray-500">Date: {tx.time.slice(0, 10)}<p>Time: {tx.time.slice(11, 16)} hrs</p></p>
+                                                <p className="text-xs text-gray-500">Date: {tx.time.slice(0, 10)}</p>
                                             </div>
                                         </div>
                                     </div>
