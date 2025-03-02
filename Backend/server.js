@@ -54,11 +54,13 @@ app.get("/", (req, res) => {
 const donorRoutes = require("./Routes/donorRoutes");
 const orgRoutes = require("./Routes/orgRoutes");
 const adminRoutes = require("./Routes/adminRoutes");
+const auth = require("./Routes/auth");
 
 // Use Routes
 app.use("/donor", donorRoutes);
 app.use("/organization", orgRoutes);
 app.use("/admin", adminRoutes);
+app.use("/auth", auth);
 
 app.listen(port, () => {
   console.log(`App running on http://localhost:${port}`);

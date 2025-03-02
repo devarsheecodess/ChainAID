@@ -4,6 +4,7 @@ import axios from 'axios';
 import Loader from '../Loader';
 import { donate } from "./Donation";
 import { v4 as uuidV4 } from 'uuid';
+import Cookies from 'js-cookie';
 
 const Dashboard = () => {
     const [organizations, setOrganizations] = useState([]);
@@ -12,7 +13,8 @@ const Dashboard = () => {
     const [showDonateModal, setShowDonateModal] = useState(false);
     const [greeting, setGreeting] = useState('');
     const [loading, setLoading] = useState(false);
-    const [donorName, setDonorName] = useState(localStorage.getItem('donorName').split(' ')[0]);
+    const donorNameLS = localStorage.getItem('donorName');
+    const [donorName, setDonorName] = useState(donorNameLS?.split(' ')[0] || '');
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     const [stats, setStats] = useState({
         totalDonations: 0,
@@ -29,6 +31,7 @@ const Dashboard = () => {
         amount: 0,
         donatedOn: new Date().toISOString(),
     });
+    const [google, setGoogle] = useState(localStorage.getItem("google"));
 
     // Filter organizations based on search term
     const filteredOrganizations = organizations.filter(org =>
@@ -64,9 +67,13 @@ const Dashboard = () => {
         }
     }
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         const cf = window.confirm('Are you sure you want to logout?');
         if (cf) {
+            if (google) {
+                const response = await axios.get(`${BACKEND_URL}/auth/donor/logout`);
+                console.log(response.data);
+            }
             window.location.href = '/';
             localStorage.clear();
         }
@@ -142,6 +149,21 @@ const Dashboard = () => {
         fetchStats();
     }, []);
 
+    useEffect(() => {
+        fetch("http://localhost:3000/auth/donor/cookies", {
+            method: "GET",
+            credentials: "include", // Important: Allows sending cookies
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                localStorage.setItem("donorName", data.donorName);
+                localStorage.setItem("donorId", data.donorId);
+                localStorage.setItem("google", true);
+                setDonorName(data.donorName);
+            })
+            .catch((err) => console.error("Error fetching donor:", err));
+    }, []);
+
     return (
         <div className="bg-gray-100 min-h-screen">
             {/* Header */}
@@ -167,7 +189,7 @@ const Dashboard = () => {
             </header>
 
             <main className="container mx-auto py-8 px-4">
-                <h1 className="text-3xl font-bold mb-8">{greeting}, {donorName}!</h1>
+                <h1 className="text-3xl font-bold mb-8">{greeting}, {donorName ? donorName : " "}!</h1>
 
                 {/* Donation Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
