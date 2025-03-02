@@ -57,6 +57,7 @@ const Login = () => {
 
     const handleDonorGoogleLogin = async () => {
         try {
+            localStorage.setItem("google", true)
             window.location.href = `${BACKEND_URL}/auth/donor/login/google`;
         } catch (err) {
             console.error("Google sign-in error:", err);
