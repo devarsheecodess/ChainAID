@@ -9,12 +9,12 @@ const cookieParser = require("cookie-parser");
 router.use(cookieParser());
 
 const Donor = require("../Models/Donor");
-const FRONTEND_URL = "https://chain-aid.vercel.app/"; // Replace with your frontend URL
+const FRONTEND_URL = "http://localhost:5173"; // Replace with your frontend URL
 
 // Session setup
 router.use(
   session({
-    secret: "yourSecretKey", // Replace with a unique key
+    secret: process.env.EXPRESS_SESSION_SECRET, // Replace with a unique key
     resave: false, // Avoid resaving unchanged sessions
     saveUninitialized: false, // Only save sessions with initialized data
     cookie: {
