@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 router.use(cookieParser());
 
 const Donor = require("../Models/Donor");
-const FRONTEND_URL = "https://chain-aid.vercel.app/"; // Replace with your frontend URL
+const FRONTEND_URL = "http://localhost:5173"; // Replace with your frontend URL
 
 // Session setup
 router.use(

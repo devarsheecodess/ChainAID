@@ -150,7 +150,7 @@ const Dashboard = () => {
     }, []);
 
     useEffect(() => {
-        fetch("http://localhost:3000/auth/donor/cookies", {
+        fetch(`${BACKEND_URL}/auth/donor/cookies`, {
             method: "GET",
             credentials: "include", // Important: Allows sending cookies
         })
