@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 router.use(cookieParser());
 
 const Donor = require("../Models/Donor");
-const FRONTEND_URL = "https://chain-aid.vercel.app/"; // Replace with your frontend URL
+const FRONTEND_URL = process.env.FRONTEND_URL; // Replace with your frontend URL
 
 // Session setup
 router.use(
@@ -111,7 +111,7 @@ router.get(
 router.get("/donor/cookies", (req, res) => {
   const donorName = req.cookies.donorName;
   const donorId = req.cookies.donorId;
-  const google = req.cookies.google
+  const google = req.cookies.google;
 
   if (!donorName || !donorId) {
     return res.status(401).json({ message: "No donor information found" });
