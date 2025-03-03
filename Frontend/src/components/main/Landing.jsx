@@ -9,6 +9,7 @@ import axios from 'axios';
 const Landing = () => {
     const [organizations, setOrganizations] = useState([]);
     const [numOrgs, setNumOrgs] = useState(localStorage.getItem('noOfOrgs'));
+    const [totalDonations, setTotalDonations] = useState(0);
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const fetchOrganizations = async () => {
@@ -21,8 +22,18 @@ const Landing = () => {
         }
     }
 
+    const fetchDonations = async () => {
+        try {
+            const response = await axios.get(`${BACKEND_URL}/donor/donations`);
+            setTotalDonations(response.data.totalAmount);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     useEffect(() => {
         fetchOrganizations();
+        fetchDonations();
     }, []);
 
     return (
@@ -67,7 +78,7 @@ const Landing = () => {
                             {/* Stats Overlay */}
                             <div className="absolute -bottom-6 right-4 bg-white p-4 rounded-lg shadow-lg">
                                 <p className="text-sm text-gray-500">Total Donations</p>
-                                <p className="text-xl font-bold text-indigo-600">Ξ 256.78 ETH</p>
+                                <p className="text-xl font-bold text-indigo-600">Ξ {totalDonations || 0} ETH</p>
                             </div>
                             <div className="absolute -bottom-6 left-4 bg-white p-4 rounded-lg shadow-lg">
                                 <p className="text-sm text-gray-500">Organizations</p>

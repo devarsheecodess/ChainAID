@@ -148,4 +148,15 @@ router.get("/stats", async (req, res) => {
   }
 });
 
+// Fetch donations
+router.get("/donations", async (req, res) => {
+  try {
+    const donations = await Donation.find();
+    const totalAmount = donations.reduce((acc, curr) => acc + curr.amount, 0);
+    res.json({ totalAmount });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
 module.exports = router;

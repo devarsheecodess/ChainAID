@@ -89,9 +89,6 @@ router.get(
         res.cookie("donorId", donor.id, {
           httpOnly: true,
         });
-        res.cookie("google", true, {
-          httpOnly: true,
-        });
 
         // Redirect to your frontend
         res.redirect(`${FRONTEND_URL}/donor/dashboard`);
@@ -111,13 +108,12 @@ router.get(
 router.get("/donor/cookies", (req, res) => {
   const donorName = req.cookies.donorName;
   const donorId = req.cookies.donorId;
-  const google = req.cookies.google;
 
   if (!donorName || !donorId) {
     return res.status(401).json({ message: "No donor information found" });
   }
 
-  res.json({ donorName, donorId, google });
+  res.json({ donorName, donorId });
 });
 
 router.get("/donor/logout", function (req, res, next) {

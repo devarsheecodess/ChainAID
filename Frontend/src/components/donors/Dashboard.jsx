@@ -153,18 +153,20 @@ const Dashboard = () => {
     }, []);
 
     useEffect(() => {
-        if(google){
+        if (localStorage.getItem("google") === true) {
             fetch(`${BACKEND_URL}/auth/donor/cookies`, {
-            method: "GET",
-            credentials: "include", // Important: Allows sending cookies
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                localStorage.setItem("donorName", data.donorName);
-                localStorage.setItem("donorId", data.donorId);
-                setDonorName(data.donorName);
+                method: "GET",
+                credentials: "include", // Important: Allows sending cookies
             })
-            .catch((err) => console.error("Error fetching donor:", err));
+                .then((res) => res.json())
+                .then((data) => {
+                    localStorage.setItem("donorName", data.donorName);
+                    localStorage.setItem("donorId", data.donorId);
+                    setDonorName(data.donorName);
+                })
+                .catch((err) => console.error("Error fetching donor:", err));
+        } else {
+            return
         }
     }, []);
 

@@ -20,6 +20,7 @@ const Login = () => {
     const handleDonorLogin = async (e) => {
         e.preventDefault()
         try {
+            localStorage.setItem("google", false)
             const response = await axios.post(`${BACKEND_URL}/donor/login`, donorForm)
             if (response.data.status === 'loggedIn') {
                 alert('Logged in successfully!')
@@ -31,6 +32,7 @@ const Login = () => {
                 alert('Invalid username/password!')
             }
         } catch (err) {
+            localStorage.removeItem("google");
             console.error(err)
         }
     }
@@ -60,6 +62,7 @@ const Login = () => {
             localStorage.setItem("google", true)
             window.location.href = `${BACKEND_URL}/auth/donor/login/google`;
         } catch (err) {
+            localStorage.removeItem("google");
             console.error("Google sign-in error:", err);
         }
     };
